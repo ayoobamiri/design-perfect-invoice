@@ -4,20 +4,6 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/*
- * Design system definition.
- *
- * The @theme inline block maps CSS custom properties to Tailwind utility
- * classes (e.g. --color-primary -> bg-primary, text-primary).
- *
- * The :root and .dark blocks define the actual color values using oklch.
- * All colors MUST use oklch format.
- *
- * To add a new semantic color:
- * 1. Add the variable to :root (light value) and .dark (dark value)
- * 2. Register it in @theme inline as --color-<name>: var(--<name>)
- */
-
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -59,11 +45,18 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --font-form-display: "Archivo Black", "Archivo", sans-serif;
+  --font-form-condensed: "Archivo Narrow", "Arial Narrow", sans-serif;
+  --font-form-body: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-form-mono: "IBM Plex Mono", monospace;
 }
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
+  --background: oklch(0.36 0.01 90);
   --foreground: oklch(0.129 0.042 264.695);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.129 0.042 264.695);
@@ -95,6 +88,10 @@
   --sidebar-accent-foreground: oklch(0.208 0.042 265.755);
   --sidebar-border: oklch(0.929 0.013 255.508);
   --sidebar-ring: oklch(0.704 0.04 256.788);
+  /* Invoice form tokens */
+  --paper: oklch(0.985 0.002 95);
+  --ink: oklch(0.14 0.01 260);
+  --ink-soft: oklch(0.35 0.01 260);
 }
 
 .dark {
@@ -140,5 +137,35 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+  }
+}
+
+@utility form-box {
+  border: 1.5px solid var(--color-ink);
+  background: var(--color-paper);
+}
+
+@utility form-cell {
+  border: 1px solid var(--color-ink);
+}
+
+@utility form-label {
+  font-family: var(--font-form-condensed);
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-ink);
+}
+
+@utility form-input {
+  width: 100%;
+  background: transparent;
+  outline: none;
+  font-family: var(--font-form-mono);
+  font-size: 11px;
+  color: var(--color-ink);
+  &:focus {
+    background: color-mix(in oklab, var(--color-ink) 5%, transparent);
   }
 }
