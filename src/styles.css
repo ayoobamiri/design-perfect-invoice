@@ -169,3 +169,24 @@
     background: color-mix(in oklab, var(--color-ink) 5%, transparent);
   }
 }
+
+@media print {
+  @page {
+    size: letter;
+    margin: 8mm;
+  }
+  body {
+    background: white;
+  }
+  .no-print {
+    display: none !important;
+  }
+  input {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .bg-ink {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+}
