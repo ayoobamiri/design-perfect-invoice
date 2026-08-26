@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { saveEntry, type InvoiceEntry } from "@/lib/invoice-store";
 
 export const Route = createFileRoute("/")({
@@ -28,6 +28,13 @@ export const Route = createFileRoute("/")({
 
 const slug = (s: string) =>
   s.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
+
+const num = (v: string) => {
+  const n = parseFloat(String(v).replace(/[^0-9.\-]/g, ""));
+  return Number.isFinite(n) ? n : 0;
+};
+
+const money = (n: number) => (n ? n.toFixed(2) : "");
 
 /* ---------- tiny building blocks ---------- */
 
@@ -63,21 +70,46 @@ function Field({
   );
 }
 
-function BlackBar({ children }: { children: React.ReactNode }) {
+function Computed({ name, value }: { name: string; value: string }) {
   return (
-    <div className="bg-ink px-2 py-0.5 text-center">
-      <span className="font-form-condensed text-[10px] font-bold tracking-wide text-paper uppercase">
-        {children}
-      </span>
-    </div>
+    <input
+      readOnly
+      name={name}
+      value={value}
+      aria-label={name}
+      className="form-input bg-ink/5 text-right font-bold"
+    />
   );
 }
 
 /* ---------- page ---------- */
 
+const EMISSIONS = [
+  "PCV", "TAC", "EVP", "O.C.", "EGR", "SPK", "CARB",
+  "INJ", "ASI", "C. CO", "O. E.", "FPR",
+];
+
 function InvoicePage() {
   const formRef = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
+
+  const [testFee, setTestFee] = useState("");
+  const [certFee, setCertFee] = useState("");
+  const [salesTax, setSalesTax] = useState("");
+  const [partAmounts, setPartAmounts] = useState<string[]>(Array(12).fill(""));
+  const [laborAmounts, setLaborAmounts] = useState<string[]>(Array(9).fill(""));
+
+  const estTotal = useMemo(() => num(testFee) + num(certFee), [testFee, certFee]);
+  const totalParts = useMemo(
+    () => partAmounts.reduce((s, v) => s + num(v), 0),
+    [partAmounts],
+  );
+  const totalLabor = useMemo(
+    () => laborAmounts.reduce((s, v) => s + num(v), 0),
+    [laborAmounts],
+  );
+  const grandTotal =
+    totalParts + totalLabor + num(salesTax) + num(testFee) + num(certFee);
 
   const collect = (): InvoiceEntry => {
     const fd = new FormData(formRef.current!);
@@ -85,11 +117,7 @@ function InvoicePage() {
     fd.forEach((v, k) => {
       data[k] = data[k] ? `${data[k]}, ${String(v)}` : String(v);
     });
-    return {
-      id: crypto.randomUUID(),
-      savedAt: new Date().toISOString(),
-      data,
-    };
+    return { id: crypto.randomUUID(), savedAt: new Date().toISOString(), data };
   };
 
   const onSavePdf = (e: React.FormEvent) => {
@@ -123,7 +151,7 @@ function InvoicePage() {
             form="invoice-form"
             className="rounded-sm bg-ink px-4 py-2 font-form-condensed text-xs font-bold text-paper uppercase ring-1 ring-paper hover:opacity-90"
           >
-            Submit &amp; Save PDF
+            Submit &amp; Save PDF (Landscape)
           </button>
           <Link
             to="/records"
@@ -138,12 +166,11 @@ function InvoicePage() {
         id="invoice-form"
         ref={formRef}
         onSubmit={onSavePdf}
-        className="mx-auto w-full max-w-[1100px] bg-paper p-3 text-ink shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] sm:p-5 print:shadow-none"
+        className="invoice-sheet mx-auto w-full max-w-[1100px] bg-paper p-3 text-ink shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] sm:p-5 print:shadow-none"
         style={{ fontFamily: "var(--font-form-body)" }}
       >
         {/* ===== HEADER ===== */}
         <div className="flex flex-col gap-3 lg:flex-row print:flex-row">
-          {/* left: shop identity */}
           <div className="text-center lg:w-[46%] lg:pt-2">
             <h1 className="font-form-display text-[34px] leading-none tracking-tight sm:text-[40px]">
               POWER INN SMOG
@@ -158,15 +185,12 @@ function InvoicePage() {
             <p className="mt-0.5 text-[17px] font-bold">(916) 877-SMOG (7664)</p>
           </div>
 
-          {/* right: date / type / fuel */}
           <div className="form-box grid flex-1 grid-cols-2 text-left">
             <Field label="Date In" name="date_in" className="border-r border-b border-ink" />
             <Field label="Type of Vehicle" className="border-b border-ink" />
             <div className="col-span-2 grid grid-cols-[1fr_1fr_auto] gap-1 px-1.5 py-1">
               <div className="flex flex-col gap-1">
-                <span className="form-label bg-ink px-1 text-paper">
-                  Fuel used in vehicle
-                </span>
+                <span className="form-label bg-ink px-1 text-paper">Fuel used in vehicle</span>
                 <div className="grid grid-cols-2 gap-x-2 gap-y-1">
                   <Cb label="Gasoline" />
                   <Cb label="Liquid Prop. Gas" name="fuel_lpg" />
@@ -208,12 +232,12 @@ function InvoicePage() {
             </div>
 
             <p className="mt-1.5 text-[9.5px] leading-snug font-semibold">
-              <span className="font-form-condensed font-bold">NOTE :</span> By
-              law, you may choose another facility to perform any needed repairs
-              or adjustments which smog check test indicates are necessary.
+              <span className="font-form-condensed font-bold">NOTE :</span> By law, you may
+              choose another facility to perform any needed repairs or adjustments which smog
+              check test indicates are necessary.
             </p>
 
-            {/* original estimate */}
+            {/* ORIGINAL ESTIMATE — three sections */}
             <div className="form-box mt-1 grid grid-cols-[auto_1fr]">
               <div className="bg-ink px-2 py-1 text-center">
                 <span className="font-form-condensed block text-[11px] font-bold text-paper uppercase">
@@ -223,42 +247,49 @@ function InvoicePage() {
                   Estimate
                 </span>
               </div>
-              <div className="flex items-center justify-between gap-1 px-2">
-                <span className="font-form-mono text-sm">$</span>
-                <input className="form-input max-w-[90px] text-right" name="est_amount" aria-label="Estimate amount" />
-                <span className="text-sm font-bold">+</span>
-                <div className="flex flex-col items-center">
-                  <input className="form-input max-w-[80px] text-right" name="est_test_fee" aria-label="Inspection and test fee" />
-                  <span className="form-label">Inspection &amp; Test Fee</span>
-                </div>
-                <span className="text-sm font-bold">+</span>
-                <div className="flex flex-col items-center">
-                  <input className="form-input max-w-[70px] text-right" name="est_cert_fee" aria-label="Cert fee" />
-                  <span className="form-label">Cert. Fee</span>
-                </div>
-                <span className="text-sm font-bold">=</span>
-                <span className="font-form-mono text-sm">$</span>
-                <input className="form-input max-w-[90px] text-right" name="est_total" aria-label="Estimate total" />
-              </div>
-            </div>
-
-            {/* emissions checklist strip */}
-            <div className="form-box mt-1 grid grid-cols-6 sm:grid-cols-12 print:grid-cols-12">
-              {["PCV","TAC","EVP","O.C.","EGR","SPK","CARB","INJ","ASI","C. CO","O. E.","FPR"].map(
-                (t) => (
-                  <div key={t} className="flex flex-col items-center border-r border-ink last:border-r-0">
-                    <span className="form-label py-0.5">{t}</span>
-                    <input className="form-input h-5 text-center" name={`check_${slug(t)}`} aria-label={t} />
+              <div className="flex items-center justify-between gap-2 px-3 py-1">
+                <div className="flex flex-1 flex-col items-center">
+                  <div className="flex w-full items-baseline gap-1">
+                    <span className="font-form-mono text-sm">$</span>
+                    <input
+                      className="form-input border-b border-ink text-right"
+                      name="est_test_fee"
+                      value={testFee}
+                      onChange={(e) => setTestFee(e.target.value)}
+                      aria-label="Inspection and test fee"
+                    />
                   </div>
-                ),
-              )}
+                  <span className="form-label mt-0.5">Inspection &amp; Test Fee</span>
+                </div>
+                <span className="text-base font-bold">+</span>
+                <div className="flex flex-1 flex-col items-center">
+                  <div className="flex w-full items-baseline gap-1">
+                    <span className="font-form-mono text-sm">$</span>
+                    <input
+                      className="form-input border-b border-ink text-right"
+                      name="est_cert_fee"
+                      value={certFee}
+                      onChange={(e) => setCertFee(e.target.value)}
+                      aria-label="Certificate fee"
+                    />
+                  </div>
+                  <span className="form-label mt-0.5">Cert. Fee</span>
+                </div>
+                <span className="text-base font-bold">=</span>
+                <div className="flex flex-1 flex-col items-center">
+                  <div className="flex w-full items-baseline gap-1">
+                    <span className="font-form-mono text-sm">$</span>
+                    <Computed name="est_total" value={money(estTotal)} />
+                  </div>
+                  <span className="form-label mt-0.5">Estimate Total</span>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* right column */}
           <div className="flex-1">
             <div className="form-box">
-              {/* biennial / type of test / exhaust / transmission */}
               <div className="grid grid-cols-[1.2fr_1fr_1fr_1fr] border-b border-ink">
                 <div className="flex flex-col gap-1 border-r border-ink px-1.5 py-1">
                   <Cb label="Biennal Inspection" name="insp_biennal" />
@@ -282,7 +313,8 @@ function InvoicePage() {
                   <Cb label="Auto." name="trans_auto" />
                 </div>
               </div>
-              {/* VIN boxes */}
+
+              {/* VIN */}
               <div className="border-b border-ink px-1.5 py-1">
                 <span className="form-label bg-ink px-1 text-paper">
                   Vehicle Identification No.
@@ -299,17 +331,20 @@ function InvoicePage() {
                   ))}
                 </div>
               </div>
-              {/* odometer / last insp */}
-              <div className="grid grid-cols-2 border-b border-ink">
+
+              {/* odometer / last insp (+ INV #) */}
+              <div className="grid grid-cols-[1fr_auto_1fr_90px] border-b border-ink">
                 <Field label="Odometer" className="border-r border-ink" />
-                <div className="grid grid-cols-[auto_1fr]">
-                  <span className="form-label bg-ink self-start px-1 py-0.5 text-paper">
-                    Last Insp.
-                  </span>
-                  <Field label="Date" name="last_insp_date" />
-                </div>
+                <span className="form-label bg-ink self-stretch px-1 py-1 text-paper">
+                  Last
+                  <br />
+                  Insp.
+                </span>
+                <Field label="Date" name="last_insp_date" className="border-r border-ink" />
+                <Field label="Inv. #" name="inv_no" />
               </div>
-              {/* cert status / engine info / inv */}
+
+              {/* cert status / engine info / engine size */}
               <div className="grid grid-cols-[1fr_1.3fr_auto] border-b border-ink">
                 <div className="border-r border-ink px-1.5 py-1">
                   <span className="form-label">Certification Status</span>
@@ -318,7 +353,12 @@ function InvoicePage() {
                     <br />R = B.A.R. Referee
                     <br />N = Unknown
                   </p>
-                  <input className="form-input mt-1 w-10 border border-ink text-center uppercase" name="cert_status" maxLength={1} aria-label="Certification status" />
+                  <input
+                    className="form-input mt-1 w-10 border border-ink text-center uppercase"
+                    name="cert_status"
+                    maxLength={1}
+                    aria-label="Certification status"
+                  />
                 </div>
                 <div className="border-r border-ink px-1.5 py-1">
                   <span className="form-label">Engine Information</span>
@@ -332,9 +372,12 @@ function InvoicePage() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-1 px-1.5 py-1">
-                  <Field label="Inv. #" name="inv_no" className="w-16 p-0" />
                   <span className="form-label">Engine Size:</span>
-                  <input className="form-input w-14 border border-ink" name="engine_size" aria-label="Engine size" />
+                  <input
+                    className="form-input w-16 border-b border-ink"
+                    name="engine_size"
+                    aria-label="Engine size"
+                  />
                   <div className="flex gap-2">
                     <Cb label="I" name="engsz_i" />
                     <Cb label="C" name="engsz_c" />
@@ -342,6 +385,7 @@ function InvoicePage() {
                   </div>
                 </div>
               </div>
+
               <p className="px-1.5 py-1 text-[8.5px] leading-snug font-semibold">
                 <span className="font-form-condensed font-bold">COST LIMIT DOES NOT APPLY</span>{" "}
                 if the required certified motor vehicle pollution control is modified,
@@ -349,9 +393,9 @@ function InvoicePage() {
               </p>
             </div>
 
-            {/* revised estimate */}
+            {/* REVISED ESTIMATE — matches original form layout */}
             <div className="form-box mt-1 grid grid-cols-[auto_1fr]">
-              <div className="bg-ink px-2 py-1 text-center">
+              <div className="flex flex-col justify-center bg-ink px-2 text-center">
                 <span className="font-form-condensed block text-[11px] font-bold text-paper uppercase">
                   Revised
                 </span>
@@ -360,55 +404,72 @@ function InvoicePage() {
                 </span>
               </div>
               <div>
-                <div className="grid grid-cols-[auto_1fr_1fr_1fr_auto_auto] items-end gap-1 border-b border-ink px-1.5 py-0.5">
-                  <span className="font-form-mono text-sm">$</span>
-                  <input className="form-input text-right" name="rev_amount" aria-label="Revised estimate amount" />
-                  <Field label="Additional Cost" name="rev_additional_cost" className="p-0" />
-                  <Field label="Reason" name="rev_reason" className="p-0" />
-                  <div className="flex items-center gap-1">
-                    <span className="form-label">Authorized by</span>
-                    <Cb label="In person" name="rev_auth_person" />
-                    <Cb label="Phone" name="rev_auth_phone" />
+                {/* row 1 */}
+                <div className="grid grid-cols-[110px_1fr_90px_1fr] border-b border-ink">
+                  <div className="flex items-end gap-1 border-r border-ink px-1.5 pb-1">
+                    <span className="font-form-mono text-sm">$</span>
+                    <input className="form-input text-right" name="rev_amount" aria-label="Revised estimate amount" />
+                  </div>
+                  <Field label="Additional Cost" name="rev_additional_cost" className="border-r border-ink" />
+                  <Field label="Reason" name="rev_reason" className="border-r border-ink" />
+                  <div className="flex flex-col px-1.5 pt-0.5 pb-1">
+                    <span className="form-label">Authorized By</span>
+                    <div className="mt-1 flex gap-3">
+                      <Cb label="In person" name="rev_auth_person" />
+                      <Cb label="Phone" name="rev_auth_phone" />
+                    </div>
                   </div>
                 </div>
-                <div className="grid grid-cols-[auto_1fr_1fr_1fr_auto] items-end gap-1 px-1.5 py-0.5">
-                  <span className="font-form-mono text-sm">$</span>
-                  <input className="form-input text-right" name="rev_total" aria-label="Revised total" />
-                  <Field label="Contacted By" name="rev_contacted_by" className="p-0" />
-                  <Field label="Date" name="rev_date" className="p-0" />
-                  <div className="flex items-center gap-2">
-                    <Field label="Time" name="rev_time" className="w-14 p-0" />
-                    <Cb label="AM" name="rev_am" />
-                    <Cb label="PM" name="rev_pm" />
+                {/* row 2 */}
+                <div className="grid grid-cols-[110px_1fr_90px_1fr]">
+                  <div className="flex items-end gap-1 border-r border-ink px-1.5 pb-1">
+                    <span className="font-form-mono text-sm">$</span>
+                    <input className="form-input text-right" name="rev_total" aria-label="Revised total" />
+                  </div>
+                  <Field label="Contacted By" name="rev_contacted_by" className="border-r border-ink" />
+                  <Field label="Date" name="rev_date" className="border-r border-ink" />
+                  <div className="grid grid-cols-[1fr_auto]">
+                    <Field label="Time" name="rev_time" />
+                    <div className="flex flex-col justify-center gap-1 pr-1.5">
+                      <Cb label="AM" name="rev_am" />
+                      <Cb label="PM" name="rev_pm" />
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
 
-            {/* EGR / timing strip */}
-            <div className="form-box mt-1 grid grid-cols-[repeat(3,1fr)_1.6fr_1.4fr]">
-              <Field label="EGR" name="egr" className="border-r border-ink" />
-              <Field label="Tim.Spec" name="tim_spec" className="border-r border-ink" />
-              <div className="flex flex-col border-r border-ink px-1.5 py-0.5">
-                <span className="form-label">Timing</span>
-                <input className="form-input" name="timing" aria-label="Timing" />
-                <div className="mt-0.5 flex items-center justify-between">
-                  <span className="form-label">Deg.</span>
-                  <Cb label="A" name="timing_a" />
-                  <Cb label="B" name="timing_b" />
-                </div>
-              </div>
-              <div className="flex flex-col justify-between border-r border-ink px-1.5 py-0.5">
-                <span className="form-label">Maint. Lt.</span>
-                <div className="flex gap-3">
-                  <Cb label="Warning" name="maint_warning" />
-                  <Cb label="Maint." name="maint_maint" />
-                </div>
-              </div>
-              <div className="px-1.5 py-0.5">
-                <span className="form-label">&nbsp;</span>
-              </div>
+        {/* ===== FULL-WIDTH TEST STRIP (single row) ===== */}
+        <div className="form-box mt-2 grid grid-cols-[repeat(14,minmax(0,1fr))_1.6fr_1.5fr]">
+          {EMISSIONS.map((t) => (
+            <div key={t} className="flex flex-col items-center border-r border-ink">
+              <span className="form-label py-0.5">{t}</span>
+              <input className="form-input h-5 text-center" name={`check_${slug(t)}`} aria-label={t} />
             </div>
+          ))}
+          <div className="flex flex-col items-center border-r border-ink">
+            <span className="form-label py-0.5">EGR</span>
+            <input className="form-input h-5 text-center" name="egr_2" aria-label="EGR secondary" />
+          </div>
+          <div className="flex flex-col items-center border-r border-ink">
+            <span className="form-label py-0.5">Tim.Spec</span>
+            <input className="form-input h-5 text-center" name="tim_spec" aria-label="Tim.Spec" />
+          </div>
+          <div className="flex items-center gap-1 border-r border-ink px-1.5">
+            <span className="form-label">Timing</span>
+            <input className="form-input border-b border-ink" name="timing" aria-label="Timing" />
+            <span className="form-label">Deg.</span>
+            <div className="flex flex-col gap-0.5">
+              <Cb label="A" name="timing_a" />
+              <Cb label="B" name="timing_b" />
+            </div>
+          </div>
+          <div className="flex items-center gap-2 px-1.5">
+            <span className="form-label">Maint. Lt.</span>
+            <Cb label="Warning" name="maint_warning" />
+            <Cb label="Maint." name="maint_maint" />
           </div>
         </div>
 
@@ -425,12 +486,20 @@ function InvoicePage() {
                 </span>
                 <span className="form-label px-1 py-0.5 text-paper">Amount</span>
               </div>
-              {Array.from({ length: 12 }).map((_, i) => (
+              {partAmounts.map((amt, i) => (
                 <div key={i} className="grid h-[26px] grid-cols-[44px_40px_1fr_110px] border-t border-ink">
                   <input className="form-input border-r border-ink text-center" name={`part_${i}_qty`} aria-label={`Part ${i + 1} qty`} />
                   <input className="form-input border-r border-ink text-center" name={`part_${i}_code`} aria-label={`Part ${i + 1} code`} />
                   <input className="form-input border-r border-ink" name={`part_${i}_desc`} aria-label={`Part ${i + 1} description`} />
-                  <input className="form-input text-right" name={`part_${i}_amount`} aria-label={`Part ${i + 1} amount`} />
+                  <input
+                    className="form-input text-right"
+                    name={`part_${i}_amount`}
+                    value={amt}
+                    onChange={(e) =>
+                      setPartAmounts((p) => p.map((v, j) => (j === i ? e.target.value : v)))
+                    }
+                    aria-label={`Part ${i + 1} amount`}
+                  />
                 </div>
               ))}
               <div className="grid grid-cols-[1fr_110px] border-t border-ink">
@@ -443,12 +512,11 @@ function InvoicePage() {
                   <span className="form-label flex items-center bg-ink px-1.5 text-paper">
                     Total Parts
                   </span>
-                  <input className="form-input text-right" name="total_parts" aria-label="Total parts" />
+                  <Computed name="total_parts" value={money(totalParts)} />
                 </div>
               </div>
             </div>
 
-            {/* authorization text + signature */}
             <p className="mt-1.5 text-[8.5px] leading-snug font-semibold italic">
               I hereby authorize the above smog test to be done according to current smog test
               laws. You and your employees may operate above listed vehicle for purposes of
@@ -458,10 +526,18 @@ function InvoicePage() {
               left in it, in case of fire, theft, accident or any other cause beyond your
               control. I acknowledge receipt of a copy hereof.
             </p>
+
+            {/* signature — typed, handwriting font */}
             <div className="form-box mt-1 flex items-end gap-2 px-2 pt-1 pb-1.5">
               <span className="form-label">Cust. Sign</span>
               <span className="font-form-mono text-sm font-bold">X</span>
-              <div className="h-px flex-1 bg-ink" />
+              <input
+                name="customer_signature"
+                aria-label="Customer signature"
+                placeholder="Type full name to sign"
+                className="w-full flex-1 border-b border-ink bg-transparent pb-0.5 text-[20px] leading-tight text-ink outline-none placeholder:text-[11px] placeholder:font-normal placeholder:text-ink/35"
+                style={{ fontFamily: "var(--font-hand)" }}
+              />
             </div>
           </div>
 
@@ -474,17 +550,25 @@ function InvoicePage() {
                 </span>
                 <span className="form-label px-1 py-0.5 text-paper">Amount</span>
               </div>
-              {Array.from({ length: 9 }).map((_, i) => (
+              {laborAmounts.map((amt, i) => (
                 <div key={i} className="grid h-[26px] grid-cols-[1fr_110px] border-t border-ink">
                   <input className="form-input border-r border-ink" name={`labor_${i}_desc`} aria-label={`Labor ${i + 1}`} />
-                  <input className="form-input text-right" name={`labor_${i}_amount`} aria-label={`Labor ${i + 1} amount`} />
+                  <input
+                    className="form-input text-right"
+                    name={`labor_${i}_amount`}
+                    value={amt}
+                    onChange={(e) =>
+                      setLaborAmounts((p) => p.map((v, j) => (j === i ? e.target.value : v)))
+                    }
+                    aria-label={`Labor ${i + 1} amount`}
+                  />
                 </div>
               ))}
             </div>
 
             <div className="mt-2 flex gap-2">
-              <BlackBar>
-                <span className="block px-4 py-1 text-[13px] leading-tight">
+              <div className="flex items-center bg-ink px-4 text-center">
+                <span className="font-form-condensed text-[13px] leading-tight font-bold text-paper uppercase">
                   IF THE TEST FAILS
                   <br />
                   OR IS ABORTED
@@ -493,25 +577,41 @@ function InvoicePage() {
                   <br />
                   THE TEST FEE
                 </span>
-              </BlackBar>
+              </div>
               <div className="form-box flex-1">
-                {[
-                  ["Total Labor", "total_labor"],
-                  ["Total Parts", "total_parts_right"],
-                  ["Sales Tax", "sales_tax"],
-                  ["Inspection & Test Fee", "inspection_test_fee"],
-                  ["Certificate Fee", "certificate_fee"],
-                ].map(([l, n]) => (
-                  <div key={n} className="grid grid-cols-[1fr_100px] border-b border-ink">
-                    <span className="form-label border-r border-ink px-1.5 py-1">{l}</span>
-                    <input className="form-input text-right" name={n} aria-label={l} />
-                  </div>
-                ))}
+                <div className="grid grid-cols-[1fr_100px] border-b border-ink">
+                  <span className="form-label border-r border-ink px-1.5 py-1">Total Labor</span>
+                  <Computed name="total_labor" value={money(totalLabor)} />
+                </div>
+                <div className="grid grid-cols-[1fr_100px] border-b border-ink">
+                  <span className="form-label border-r border-ink px-1.5 py-1">Total Parts</span>
+                  <Computed name="total_parts_summary" value={money(totalParts)} />
+                </div>
+                <div className="grid grid-cols-[1fr_100px] border-b border-ink">
+                  <span className="form-label border-r border-ink px-1.5 py-1">Sales Tax</span>
+                  <input
+                    className="form-input text-right"
+                    name="sales_tax"
+                    value={salesTax}
+                    onChange={(e) => setSalesTax(e.target.value)}
+                    aria-label="Sales tax"
+                  />
+                </div>
+                <div className="grid grid-cols-[1fr_100px] border-b border-ink">
+                  <span className="form-label border-r border-ink px-1.5 py-1">
+                    Inspection &amp; Test Fee
+                  </span>
+                  <Computed name="inspection_test_fee" value={money(num(testFee))} />
+                </div>
+                <div className="grid grid-cols-[1fr_100px] border-b border-ink">
+                  <span className="form-label border-r border-ink px-1.5 py-1">Certificate Fee</span>
+                  <Computed name="certificate_fee" value={money(num(certFee))} />
+                </div>
                 <div className="grid grid-cols-[1fr_100px]">
                   <span className="form-label flex items-center bg-ink px-1.5 py-1.5 text-[11px] text-paper">
                     Total
                   </span>
-                  <input className="form-input text-right font-bold" name="invoice_total" aria-label="Invoice total" />
+                  <Computed name="invoice_total" value={money(grandTotal)} />
                 </div>
               </div>
             </div>
