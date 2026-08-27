@@ -96,6 +96,8 @@ function InvoicePage() {
   const [testFee, setTestFee] = useState("");
   const [certFee, setCertFee] = useState("");
   const [salesTax, setSalesTax] = useState("");
+  const [revEst1, setRevEst1] = useState("");
+  const [revEst2, setRevEst2] = useState("");
   const [partAmounts, setPartAmounts] = useState<string[]>(Array(12).fill(""));
   const [laborAmounts, setLaborAmounts] = useState<string[]>(Array(9).fill(""));
 
@@ -109,7 +111,8 @@ function InvoicePage() {
     [laborAmounts],
   );
   const grandTotal =
-    totalParts + totalLabor + num(salesTax) + num(testFee) + num(certFee);
+    totalParts + totalLabor + num(salesTax) + num(testFee) + num(certFee) +
+    num(revEst1) + num(revEst2);
 
   const collect = (): InvoiceEntry => {
     const fd = new FormData(formRef.current!);
