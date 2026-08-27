@@ -52,6 +52,7 @@
   --font-form-condensed: "Archivo Narrow", "Arial Narrow", sans-serif;
   --font-form-body: "Archivo", "Helvetica Neue", Arial, sans-serif;
   --font-form-mono: "IBM Plex Mono", monospace;
+  --font-hand: "Caveat", "Segoe Script", cursive;
 }
 
 :root {
@@ -172,8 +173,12 @@
 
 @media print {
   @page {
-    size: letter;
+    size: letter landscape;
     margin: 8mm;
+  }
+  .invoice-sheet {
+    max-width: none !important;
+    width: 100% !important;
   }
   body {
     background: white;
