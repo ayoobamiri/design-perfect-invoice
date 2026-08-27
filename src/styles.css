@@ -179,7 +179,7 @@
   .invoice-sheet {
     max-width: none !important;
     width: 100% !important;
-    zoom: 0.6;
+    zoom: 0.55;
     padding: 8px !important;
   }
   body {
