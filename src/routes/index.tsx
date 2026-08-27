@@ -151,7 +151,7 @@ function InvoicePage() {
             form="invoice-form"
             className="rounded-sm bg-ink px-4 py-2 font-form-condensed text-xs font-bold text-paper uppercase ring-1 ring-paper hover:opacity-90"
           >
-            Submit &amp; Save PDF (Landscape)
+            Submit &amp; Save PDF
           </button>
           <Link
             to="/records"
@@ -188,21 +188,17 @@ function InvoicePage() {
           <div className="form-box grid flex-1 grid-cols-2 text-left">
             <Field label="Date In" name="date_in" className="border-r border-b border-ink" />
             <Field label="Type of Vehicle" className="border-b border-ink" />
-            <div className="col-span-2 grid grid-cols-[1fr_1fr_auto] gap-1 px-1.5 py-1">
-              <div className="flex flex-col gap-1">
-                <span className="form-label bg-ink px-1 text-paper">Fuel used in vehicle</span>
-                <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-                  <Cb label="Gasoline" />
-                  <Cb label="Liquid Prop. Gas" name="fuel_lpg" />
-                  <Cb label="Methanol" />
-                  <Cb label="Natural Gas" name="fuel_natural_gas" />
-                </div>
-              </div>
-              <div className="flex flex-col justify-end gap-1">
+            <div className="col-span-2 flex items-center gap-2 px-1.5 py-1">
+              <span className="form-label shrink-0 bg-ink px-1 text-paper">Fuel used in vehicle</span>
+              <div className="flex flex-1 flex-wrap items-center gap-x-2 gap-y-1">
+                <Cb label="Gasoline" />
+                <Cb label="Liquid Prop. Gas" name="fuel_lpg" />
+                <Cb label="Methanol" />
+                <Cb label="Natural Gas" name="fuel_natural_gas" />
                 <Cb label="Hwy. Duty" name="duty_hwy" />
                 <Cb label="Lt. Duty" name="duty_lt" />
               </div>
-              <Field label="G.V.W.R." name="gvwr" className="w-20 border-l border-ink pl-2" />
+              <Field label="G.V.W.R." name="gvwr" className="w-20 shrink-0 border-l border-ink pl-2" />
             </div>
           </div>
         </div>
