@@ -96,6 +96,8 @@ function InvoicePage() {
   const [testFee, setTestFee] = useState("");
   const [certFee, setCertFee] = useState("");
   const [salesTax, setSalesTax] = useState("");
+  const [revEst1, setRevEst1] = useState("");
+  const [revEst2, setRevEst2] = useState("");
   const [partAmounts, setPartAmounts] = useState<string[]>(Array(12).fill(""));
   const [laborAmounts, setLaborAmounts] = useState<string[]>(Array(9).fill(""));
 
@@ -109,7 +111,8 @@ function InvoicePage() {
     [laborAmounts],
   );
   const grandTotal =
-    totalParts + totalLabor + num(salesTax) + num(testFee) + num(certFee);
+    totalParts + totalLabor + num(salesTax) + num(testFee) + num(certFee) +
+    num(revEst1) + num(revEst2);
 
   const collect = (): InvoiceEntry => {
     const fd = new FormData(formRef.current!);
@@ -151,7 +154,7 @@ function InvoicePage() {
             form="invoice-form"
             className="rounded-sm bg-ink px-4 py-2 font-form-condensed text-xs font-bold text-paper uppercase ring-1 ring-paper hover:opacity-90"
           >
-            Submit &amp; Save PDF (Landscape)
+            Submit &amp; Save PDF
           </button>
           <Link
             to="/records"
@@ -188,21 +191,17 @@ function InvoicePage() {
           <div className="form-box grid flex-1 grid-cols-2 text-left">
             <Field label="Date In" name="date_in" className="border-r border-b border-ink" />
             <Field label="Type of Vehicle" className="border-b border-ink" />
-            <div className="col-span-2 grid grid-cols-[1fr_1fr_auto] gap-1 px-1.5 py-1">
-              <div className="flex flex-col gap-1">
-                <span className="form-label bg-ink px-1 text-paper">Fuel used in vehicle</span>
-                <div className="grid grid-cols-2 gap-x-2 gap-y-1">
-                  <Cb label="Gasoline" />
-                  <Cb label="Liquid Prop. Gas" name="fuel_lpg" />
-                  <Cb label="Methanol" />
-                  <Cb label="Natural Gas" name="fuel_natural_gas" />
-                </div>
-              </div>
-              <div className="flex flex-col justify-end gap-1">
+            <div className="col-span-2 flex items-center gap-2 px-1.5 py-1">
+              <span className="form-label shrink-0 bg-ink px-1 text-paper">Fuel used in vehicle</span>
+              <div className="flex flex-1 flex-wrap items-center gap-x-2 gap-y-1">
+                <Cb label="Gasoline" />
+                <Cb label="Liquid Prop. Gas" name="fuel_lpg" />
+                <Cb label="Methanol" />
+                <Cb label="Natural Gas" name="fuel_natural_gas" />
                 <Cb label="Hwy. Duty" name="duty_hwy" />
                 <Cb label="Lt. Duty" name="duty_lt" />
               </div>
-              <Field label="G.V.W.R." name="gvwr" className="w-20 border-l border-ink pl-2" />
+              <Field label="G.V.W.R." name="gvwr" className="w-20 shrink-0 border-l border-ink pl-2" />
             </div>
           </div>
         </div>
@@ -606,6 +605,30 @@ function InvoicePage() {
                 <div className="grid grid-cols-[1fr_100px] border-b border-ink">
                   <span className="form-label border-r border-ink px-1.5 py-1">Certificate Fee</span>
                   <Computed name="certificate_fee" value={money(num(certFee))} />
+                </div>
+                <div className="grid grid-cols-[1fr_100px] border-b border-ink">
+                  <span className="form-label border-r border-ink px-1.5 py-1">
+                    Revised Estimate
+                  </span>
+                  <input
+                    className="form-input text-right"
+                    name="rev_estimate_1"
+                    value={revEst1}
+                    onChange={(e) => setRevEst1(e.target.value)}
+                    aria-label="Revised estimate 1"
+                  />
+                </div>
+                <div className="grid grid-cols-[1fr_100px] border-b border-ink">
+                  <span className="form-label border-r border-ink px-1.5 py-1">
+                    Revised Estimate
+                  </span>
+                  <input
+                    className="form-input text-right"
+                    name="rev_estimate_2"
+                    value={revEst2}
+                    onChange={(e) => setRevEst2(e.target.value)}
+                    aria-label="Revised estimate 2"
+                  />
                 </div>
                 <div className="grid grid-cols-[1fr_100px]">
                   <span className="form-label flex items-center bg-ink px-1.5 py-1.5 text-[11px] text-paper">
