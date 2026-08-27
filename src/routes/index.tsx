@@ -606,6 +606,30 @@ function InvoicePage() {
                   <span className="form-label border-r border-ink px-1.5 py-1">Certificate Fee</span>
                   <Computed name="certificate_fee" value={money(num(certFee))} />
                 </div>
+                <div className="grid grid-cols-[1fr_100px] border-b border-ink">
+                  <span className="form-label border-r border-ink px-1.5 py-1">
+                    Revised Estimate
+                  </span>
+                  <input
+                    className="form-input text-right"
+                    name="rev_estimate_1"
+                    value={revEst1}
+                    onChange={(e) => setRevEst1(e.target.value)}
+                    aria-label="Revised estimate 1"
+                  />
+                </div>
+                <div className="grid grid-cols-[1fr_100px] border-b border-ink">
+                  <span className="form-label border-r border-ink px-1.5 py-1">
+                    Revised Estimate
+                  </span>
+                  <input
+                    className="form-input text-right"
+                    name="rev_estimate_2"
+                    value={revEst2}
+                    onChange={(e) => setRevEst2(e.target.value)}
+                    aria-label="Revised estimate 2"
+                  />
+                </div>
                 <div className="grid grid-cols-[1fr_100px]">
                   <span className="form-label flex items-center bg-ink px-1.5 py-1.5 text-[11px] text-paper">
                     Total
