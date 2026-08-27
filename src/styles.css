@@ -174,11 +174,13 @@
 @media print {
   @page {
     size: letter landscape;
-    margin: 8mm;
+    margin: 6mm;
   }
   .invoice-sheet {
     max-width: none !important;
     width: 100% !important;
+    zoom: 0.66;
+    padding: 8px !important;
   }
   body {
     background: white;
