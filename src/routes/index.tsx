@@ -13,9 +13,9 @@ import {
 } from "@/lib/invoice-store";
 
 export const Route = createFileRoute("/")({
-  validateSearch: (s: Record<string, unknown>) => ({
-    edit: typeof s["edit"] === "string" ? (s["edit"] as string) : undefined,
-  }),
+  validateSearch: (s: Record<string, unknown>): { edit?: string } =>
+    typeof s["edit"] === "string" ? { edit: s["edit"] } : {},
+
   head: () => ({
     meta: [
       { title: "Power Inn Smog — Repair Order & Invoice" },
