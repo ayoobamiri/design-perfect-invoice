@@ -1,8 +1,21 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useRef, useState } from "react";
-import { saveEntry, type InvoiceEntry } from "@/lib/invoice-store";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  clearDraft,
+  commitInvoiceId,
+  getDraft,
+  getEntry,
+  invoiceFileName,
+  peekNextInvoiceId,
+  saveDraft,
+  saveEntry,
+  updateEntry,
+} from "@/lib/invoice-store";
 
 export const Route = createFileRoute("/")({
+  validateSearch: (s: Record<string, unknown>) => ({
+    edit: typeof s["edit"] === "string" ? (s["edit"] as string) : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "Power Inn Smog — Repair Order & Invoice" },
@@ -23,6 +36,7 @@ export const Route = createFileRoute("/")({
   }),
   component: InvoicePage,
 });
+
 
 /* ---------- helpers ---------- */
 
