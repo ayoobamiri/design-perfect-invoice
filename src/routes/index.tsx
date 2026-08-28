@@ -106,6 +106,11 @@ const EMISSIONS = [
 function InvoicePage() {
   const formRef = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
+  const { edit } = Route.useSearch();
+
+  const [invoiceId, setInvoiceId] = useState("");
+  const [status, setStatus] = useState("");
+  const savedIdRef = useRef<string | null>(null);
 
   const [testFee, setTestFee] = useState("");
   const [certFee, setCertFee] = useState("");
@@ -128,24 +133,109 @@ function InvoicePage() {
     totalParts + totalLabor + num(salesTax) + num(testFee) + num(certFee) +
     num(revEst1) + num(revEst2);
 
-  const collect = (): InvoiceEntry => {
+  /* ----- collect / restore ----- */
+
+  const collectData = (id = invoiceId): Record<string, string> => {
     const fd = new FormData(formRef.current!);
     const data: Record<string, string> = {};
     fd.forEach((v, k) => {
+      if (k.startsWith("vin_")) return;
       data[k] = data[k] ? `${data[k]}, ${String(v)}` : String(v);
     });
-    return { id: crypto.randomUUID(), savedAt: new Date().toISOString(), data };
+    const el = formRef.current!;
+    const vin = Array.from({ length: 17 })
+      .map(
+        (_, i) =>
+          (el.elements.namedItem(`vin_${i}`) as HTMLInputElement | null)?.value ?? "",
+      )
+      .join("")
+      .trim();
+    data["vin"] = vin;
+    data["invoice_id"] = id;
+    return data;
+  };
+
+  const applyData = (data: Record<string, string>) => {
+    const el = formRef.current;
+    if (!el) return;
+    Array.from(el.elements).forEach((node) => {
+      const input = node as HTMLInputElement;
+      if (!input.name) return;
+      if (input.type === "checkbox") {
+        input.checked = (data[input.name] ?? "") === "yes";
+      } else if (!input.readOnly && !input.name.startsWith("vin_")) {
+        input.value = data[input.name] ?? "";
+      }
+    });
+    const vin = data["vin"] ?? "";
+    for (let i = 0; i < 17; i++) {
+      const box = el.elements.namedItem(`vin_${i}`) as HTMLInputElement | null;
+      if (box) box.value = vin[i] ?? "";
+    }
+    setTestFee(data["est_test_fee"] ?? "");
+    setCertFee(data["est_cert_fee"] ?? "");
+    setSalesTax(data["sales_tax"] ?? "");
+    setRevEst1(data["rev_estimate_1"] ?? "");
+    setRevEst2(data["rev_estimate_2"] ?? "");
+    setPartAmounts(Array.from({ length: 12 }, (_, i) => data[`part_${i}_amount`] ?? ""));
+    setLaborAmounts(Array.from({ length: 9 }, (_, i) => data[`labor_${i}_amount`] ?? ""));
+  };
+
+  useEffect(() => {
+    const entry = edit ? getEntry(edit) : undefined;
+    const data = entry?.data ?? (edit ? null : getDraft());
+    savedIdRef.current = entry ? entry.id : null;
+    if (data) applyData(data);
+    setInvoiceId(data?.["invoice_id"] || peekNextInvoiceId());
+    setStatus(entry ? `Editing saved invoice ${entry.data["invoice_id"] ?? ""}` : "");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [edit]);
+
+  const onFormInput = () => {
+    if (edit || !invoiceId) return;
+    saveDraft(collectData());
+  };
+
+  /* ----- actions ----- */
+
+  const persist = () => {
+    const data = collectData();
+    if (savedIdRef.current) {
+      updateEntry(savedIdRef.current, data);
+      setStatus(`Updated ${data["invoice_id"]} at ${new Date().toLocaleTimeString()}`);
+    } else {
+      const id = crypto.randomUUID();
+      saveEntry({ id, savedAt: new Date().toISOString(), data });
+      savedIdRef.current = id;
+      commitInvoiceId(data["invoice_id"] ?? "");
+      setStatus(`Saved ${data["invoice_id"]} at ${new Date().toLocaleTimeString()}`);
+    }
+    if (!edit) saveDraft(data);
+    return data;
   };
 
   const onSavePdf = (e: React.FormEvent) => {
     e.preventDefault();
-    saveEntry(collect());
+    const data = persist();
+    const prev = document.title;
+    document.title = invoiceFileName(data);
     window.print();
+    setTimeout(() => {
+      document.title = prev;
+    }, 1000);
   };
 
   const onSaveOnly = () => {
-    saveEntry(collect());
-    navigate({ to: "/records" });
+    persist();
+  };
+
+  const onNewInvoice = () => {
+    clearDraft();
+    savedIdRef.current = null;
+    applyData({});
+    setInvoiceId(peekNextInvoiceId());
+    setStatus("");
+    if (edit) navigate({ to: "/", search: {} });
   };
 
   return (
@@ -154,6 +244,9 @@ function InvoicePage() {
       <div className="no-print mx-auto mb-3 flex w-full max-w-[1100px] flex-wrap items-center justify-between gap-2">
         <span className="font-form-condensed text-sm font-bold tracking-wide text-primary-foreground uppercase">
           Power Inn Smog — Digital Invoice
+          {status && (
+            <span className="ml-3 font-normal normal-case opacity-70">{status}</span>
+          )}
         </span>
         <div className="flex gap-2">
           <button
@@ -170,6 +263,13 @@ function InvoicePage() {
           >
             Submit &amp; Save PDF
           </button>
+          <button
+            type="button"
+            onClick={onNewInvoice}
+            className="rounded-sm border border-paper/60 px-4 py-2 font-form-condensed text-xs font-bold text-paper uppercase hover:bg-paper/10"
+          >
+            New Invoice
+          </button>
           <Link
             to="/records"
             className="rounded-sm border border-paper/60 px-4 py-2 font-form-condensed text-xs font-bold text-paper uppercase hover:bg-paper/10"
@@ -178,6 +278,7 @@ function InvoicePage() {
           </Link>
         </div>
       </div>
+
 
       <form
         id="invoice-form"
