@@ -284,13 +284,30 @@ function InvoicePage() {
         id="invoice-form"
         ref={formRef}
         onSubmit={onSavePdf}
+        onInput={onFormInput}
+        onChange={onFormInput}
         className="invoice-sheet mx-auto w-full max-w-[1100px] bg-paper p-3 text-ink shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] sm:p-5 print:shadow-none"
         style={{ fontFamily: "var(--font-form-body)" }}
       >
+        {/* ===== INVOICE ID ===== */}
+        <div className="mb-2 flex justify-end">
+          <div className="form-box flex items-center gap-2 px-2 py-1">
+            <span className="form-label bg-ink px-1 text-paper">Invoice ID</span>
+            <input
+              readOnly
+              name="invoice_id"
+              value={invoiceId}
+              aria-label="Invoice ID"
+              className="font-form-mono w-24 bg-transparent text-[15px] font-bold outline-none"
+            />
+          </div>
+        </div>
+
         {/* ===== HEADER ===== */}
         <div className="flex flex-col gap-3 lg:flex-row print:flex-row">
           <div className="text-center lg:w-[46%] lg:pt-2">
             <h1 className="font-form-display text-[34px] leading-none tracking-tight sm:text-[40px]">
+
               POWER INN SMOG
             </h1>
             <p className="font-form-display mt-1 text-[15px] tracking-[0.28em]">
