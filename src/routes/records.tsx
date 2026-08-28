@@ -28,15 +28,18 @@ export const Route = createFileRoute("/records")({
 });
 
 const COLS: Array<[string, string]> = [
+  ["invoice_id", "Invoice ID"],
   ["date_in", "Date In"],
   ["name", "Name"],
   ["year", "Year"],
   ["make", "Make"],
   ["model", "Model"],
   ["license_plate", "Plate"],
+  ["vin", "VIN"],
   ["odometer", "Odometer"],
   ["invoice_total", "Total"],
 ];
+
 
 function RecordsPage() {
   const [entries, setEntries] = useState<InvoiceEntry[]>(() => getEntries());
