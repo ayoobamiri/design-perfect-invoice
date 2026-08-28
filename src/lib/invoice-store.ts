@@ -88,8 +88,9 @@ export function clearDraft() {
 export function invoiceFileName(data: Record<string, string>, when = new Date()) {
   const pad = (n: number) => String(n).padStart(2, "0");
   const stamp = `${when.getFullYear()}-${pad(when.getMonth() + 1)}-${pad(when.getDate())} ${pad(when.getHours())}-${pad(when.getMinutes())}`;
-  const name = (data.name || "No Name").replace(/[\\/:*?"<>|]/g, "").trim();
-  return `${data.invoice_id || "PIS"} - ${name} - ${stamp}`;
+  const name = (data["name"] || "No Name").replace(/[\\/:*?"<>|]/g, "").trim();
+  return `${data["invoice_id"] || "PIS"} - ${name} - ${stamp}`;
+
 }
 
 export function entriesToCsv(entries: InvoiceEntry[]): string {
