@@ -28,15 +28,18 @@ export const Route = createFileRoute("/records")({
 });
 
 const COLS: Array<[string, string]> = [
+  ["invoice_id", "Invoice ID"],
   ["date_in", "Date In"],
   ["name", "Name"],
   ["year", "Year"],
   ["make", "Make"],
   ["model", "Model"],
   ["license_plate", "Plate"],
+  ["vin", "VIN"],
   ["odometer", "Odometer"],
   ["invoice_total", "Total"],
 ];
+
 
 function RecordsPage() {
   const [entries, setEntries] = useState<InvoiceEntry[]>(() => getEntries());
@@ -77,10 +80,12 @@ function RecordsPage() {
             </button>
             <Link
               to="/"
+              search={{}}
               className="rounded-sm border border-paper/60 px-4 py-2 font-form-condensed text-xs font-bold uppercase hover:bg-paper/10"
             >
-              New Invoice
+              Back to Invoice
             </Link>
+
           </div>
         </div>
 
@@ -118,7 +123,15 @@ function RecordsPage() {
                           {e.data[k] || "—"}
                         </td>
                       ))}
-                      <td className="px-2 py-1.5 text-right">
+                      <td className="px-2 py-1.5 text-right whitespace-nowrap">
+                        <Link
+                          to="/"
+                          search={{ edit: e.id }}
+                          onClick={(ev) => ev.stopPropagation()}
+                          className="mr-1 rounded-sm border border-paper/40 px-2 py-0.5 font-form-condensed text-[10px] font-bold uppercase hover:bg-paper/10"
+                        >
+                          Edit
+                        </Link>
                         <button
                           onClick={(ev) => {
                             ev.stopPropagation();
@@ -129,6 +142,7 @@ function RecordsPage() {
                           Delete
                         </button>
                       </td>
+
                     </tr>
                     {expanded === e.id && (
                       <tr key={`${e.id}-detail`} className="border-b border-paper/15 bg-paper/5">
