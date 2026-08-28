@@ -80,10 +80,12 @@ function RecordsPage() {
             </button>
             <Link
               to="/"
+              search={{}}
               className="rounded-sm border border-paper/60 px-4 py-2 font-form-condensed text-xs font-bold uppercase hover:bg-paper/10"
             >
-              New Invoice
+              Back to Invoice
             </Link>
+
           </div>
         </div>
 
