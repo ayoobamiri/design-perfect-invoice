@@ -123,7 +123,15 @@ function RecordsPage() {
                           {e.data[k] || "—"}
                         </td>
                       ))}
-                      <td className="px-2 py-1.5 text-right">
+                      <td className="px-2 py-1.5 text-right whitespace-nowrap">
+                        <Link
+                          to="/"
+                          search={{ edit: e.id }}
+                          onClick={(ev) => ev.stopPropagation()}
+                          className="mr-1 rounded-sm border border-paper/40 px-2 py-0.5 font-form-condensed text-[10px] font-bold uppercase hover:bg-paper/10"
+                        >
+                          Edit
+                        </Link>
                         <button
                           onClick={(ev) => {
                             ev.stopPropagation();
@@ -134,6 +142,7 @@ function RecordsPage() {
                           Delete
                         </button>
                       </td>
+
                     </tr>
                     {expanded === e.id && (
                       <tr key={`${e.id}-detail`} className="border-b border-paper/15 bg-paper/5">
