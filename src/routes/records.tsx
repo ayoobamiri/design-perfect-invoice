@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import {
   deleteEntry,
   entriesToCsv,
@@ -120,9 +120,8 @@ function RecordsPage() {
               </thead>
               <tbody>
                 {entries.map((e) => (
-                  <>
+                  <Fragment key={e.id}>
                     <tr
-                      key={e.id}
                       onClick={() => setExpanded(expanded === e.id ? null : e.id)}
                       className="cursor-pointer border-b border-paper/15 hover:bg-paper/5"
                     >
