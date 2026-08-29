@@ -13,8 +13,10 @@ import {
 } from "@/lib/invoice-store";
 
 export const Route = createFileRoute("/invoice")({
-  validateSearch: (s: Record<string, unknown>): { edit?: string } =>
-    typeof s["edit"] === "string" ? { edit: s["edit"] } : {},
+  validateSearch: (s: Record<string, unknown>): { edit?: string; print?: string } => ({
+    ...(typeof s["edit"] === "string" ? { edit: s["edit"] } : {}),
+    ...(typeof s["print"] === "string" ? { print: s["print"] } : {}),
+  }),
 
   head: () => ({
     meta: [
