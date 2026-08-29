@@ -12,7 +12,7 @@ import {
   updateEntry,
 } from "@/lib/invoice-store";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/invoice")({
   validateSearch: (s: Record<string, unknown>): { edit?: string } =>
     typeof s["edit"] === "string" ? { edit: s["edit"] } : {},
 
