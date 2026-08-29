@@ -108,7 +108,7 @@ const EMISSIONS = [
 function InvoicePage() {
   const formRef = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
-  const { edit } = Route.useSearch();
+  const { edit, print } = Route.useSearch();
 
   const [invoiceId, setInvoiceId] = useState("");
   const [status, setStatus] = useState("");
@@ -190,8 +190,19 @@ function InvoicePage() {
     if (data) applyData(data);
     setInvoiceId(data?.["invoice_id"] || peekNextInvoiceId());
     setStatus(entry ? `Editing saved invoice ${entry.data["invoice_id"] ?? ""}` : "");
+    if (entry && print) {
+      const prev = document.title;
+      document.title = invoiceFileName(entry.data);
+      const t = setTimeout(() => {
+        window.print();
+        setTimeout(() => {
+          document.title = prev;
+        }, 1000);
+      }, 300);
+      return () => clearTimeout(t);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [edit]);
+  }, [edit, print]);
 
   const onFormInput = () => {
     if (edit || !invoiceId) return;
