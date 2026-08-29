@@ -180,7 +180,7 @@ function RecordsPage() {
                         </td>
                       </tr>
                     )}
-                  </>
+                  </Fragment>
                 ))}
               </tbody>
             </table>
