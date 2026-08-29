@@ -228,17 +228,6 @@ function InvoicePage() {
     return data;
   };
 
-  const onSavePdf = (e: React.FormEvent) => {
-    e.preventDefault();
-    const data = persist();
-    const prev = document.title;
-    document.title = invoiceFileName(data);
-    window.print();
-    setTimeout(() => {
-      document.title = prev;
-    }, 1000);
-  };
-
   const onSaveOnly = () => {
     persist();
   };
@@ -249,7 +238,7 @@ function InvoicePage() {
     applyData({});
     setInvoiceId(peekNextInvoiceId());
     setStatus("");
-    if (edit) navigate({ to: "/", search: {} });
+    if (edit || print) navigate({ to: "/invoice", search: {} });
   };
 
   return (
@@ -271,13 +260,6 @@ function InvoicePage() {
             Save Entry
           </button>
           <button
-            type="submit"
-            form="invoice-form"
-            className="rounded-sm bg-ink px-4 py-2 font-form-condensed text-xs font-bold text-paper uppercase ring-1 ring-paper hover:opacity-90"
-          >
-            Submit &amp; Save PDF
-          </button>
-          <button
             type="button"
             onClick={onNewInvoice}
             className="rounded-sm border border-paper/60 px-4 py-2 font-form-condensed text-xs font-bold text-paper uppercase hover:bg-paper/10"
@@ -290,6 +272,13 @@ function InvoicePage() {
           >
             View Sheet
           </Link>
+          <Link
+            to="/"
+            search={{}}
+            className="rounded-sm border border-paper/60 px-4 py-2 font-form-condensed text-xs font-bold text-paper uppercase hover:bg-paper/10"
+          >
+            Home
+          </Link>
         </div>
       </div>
 
@@ -297,7 +286,7 @@ function InvoicePage() {
       <form
         id="invoice-form"
         ref={formRef}
-        onSubmit={onSavePdf}
+        onSubmit={(e) => e.preventDefault()}
         onInput={onFormInput}
         onChange={onFormInput}
         className="invoice-sheet mx-auto w-full max-w-[1100px] bg-paper p-3 text-ink shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] sm:p-5 print:shadow-none"
