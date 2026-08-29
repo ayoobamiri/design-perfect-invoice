@@ -201,6 +201,7 @@ function InvoicePage() {
       }, 300);
       return () => clearTimeout(t);
     }
+    return undefined;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [edit, print]);
 
