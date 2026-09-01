@@ -303,11 +303,11 @@ function InvoicePage() {
           <div className="form-box flex items-center gap-2 px-2 py-1">
             <span className="form-label bg-ink px-1 text-paper">Invoice ID</span>
             <input
-              readOnly
               name="invoice_id"
               value={invoiceId}
+              onChange={(e) => setInvoiceId(e.target.value)}
               aria-label="Invoice ID"
-              className="font-form-mono w-24 bg-transparent text-[15px] font-bold outline-none"
+              className="font-form-mono w-24 bg-transparent text-[15px] font-bold outline-none focus:bg-ink/5"
             />
           </div>
         </div>
