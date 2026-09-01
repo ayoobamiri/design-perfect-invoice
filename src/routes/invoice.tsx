@@ -157,6 +157,12 @@ function InvoicePage() {
     return data;
   };
 
+  const todayStr = () => {
+    const d = new Date();
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return `${pad(d.getMonth() + 1)}/${pad(d.getDate())}/${d.getFullYear()}`;
+  };
+
   const applyData = (data: Record<string, string>) => {
     const el = formRef.current;
     if (!el) return;
@@ -166,7 +172,7 @@ function InvoicePage() {
       if (input.type === "checkbox") {
         input.checked = (data[input.name] ?? "") === "yes";
       } else if (!input.readOnly && !input.name.startsWith("vin_")) {
-        input.value = data[input.name] ?? "";
+        input.value = data[input.name] ?? (input.name === "date_in" ? todayStr() : "");
       }
     });
     const vin = data["vin"] ?? "";
