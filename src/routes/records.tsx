@@ -1,13 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import {
   deleteEntry,
   entriesToCsv,
   getEntries,
   type InvoiceEntry,
+  BRANDS,
+  toBrand,
 } from "@/lib/invoice-store";
 
 export const Route = createFileRoute("/records")({
+  validateSearch: (s: Record<string, unknown>): { brand?: string } => ({
+    ...(s["brand"] === "auto" ? { brand: "auto" } : {}),
+  }),
   head: () => ({
     meta: [
       { title: "Saved Entries — Power Inn Smog" },
@@ -42,15 +47,26 @@ const COLS: Array<[string, string]> = [
 
 
 function RecordsPage() {
-  const [entries, setEntries] = useState<InvoiceEntry[]>(() => getEntries());
+  const { brand: brandParam } = Route.useSearch();
+  const brand = toBrand(brandParam);
+  const search = brand === "auto" ? { brand: "auto" as const } : {};
+  const [entries, setEntries] = useState<InvoiceEntry[]>(() => getEntries(brand));
+
+  useEffect(() => {
+    setEntries(getEntries(brand));
+    setExpandedSafe(null);
+  }, [brand]);
   const [expanded, setExpanded] = useState<string | null>(null);
+  function setExpandedSafe(v: string | null) {
+    setExpanded(v);
+  }
 
   const downloadCsv = () => {
     const blob = new Blob([entriesToCsv(entries)], { type: "text/csv" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `power-inn-smog-entries-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `${brand === "auto" ? "power-inn-automotive" : "power-inn-smog"}-entries-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -60,8 +76,8 @@ function RecordsPage() {
       entry.data["name"] ? ` — ${entry.data["name"]}` : ""
     }`;
     if (!window.confirm(`Delete ${label}?\n\nThis cannot be undone.`)) return;
-    deleteEntry(entry.id);
-    setEntries(getEntries());
+    deleteEntry(entry.id, brand);
+    setEntries(getEntries(brand));
   };
 
   return (
@@ -72,7 +88,7 @@ function RecordsPage() {
             className="text-xl font-bold tracking-tight"
             style={{ fontFamily: "var(--font-form-display)" }}
           >
-            SAVED ENTRIES
+            SAVED ENTRIES — {BRANDS[brand].label.toUpperCase()}
           </h1>
           <div className="flex gap-2">
             <button
@@ -84,7 +100,7 @@ function RecordsPage() {
             </button>
             <Link
               to="/invoice"
-              search={{}}
+              search={search}
               className="rounded-sm border border-paper/60 px-4 py-2 font-form-condensed text-xs font-bold uppercase hover:bg-paper/10"
             >
               New Invoice
@@ -98,6 +114,23 @@ function RecordsPage() {
             </Link>
 
           </div>
+        </div>
+
+        <div className="mt-4 flex gap-2">
+          {(["smog", "auto"] as const).map((b) => (
+            <Link
+              key={b}
+              to="/records"
+              search={b === "auto" ? { brand: "auto" } : {}}
+              className={`rounded-sm px-4 py-2 font-form-condensed text-xs font-bold uppercase ${
+                brand === b
+                  ? "bg-paper text-ink"
+                  : "border border-paper/60 hover:bg-paper/10"
+              }`}
+            >
+              {BRANDS[b].label}
+            </Link>
+          ))}
         </div>
 
         {entries.length === 0 ? (
@@ -136,7 +169,7 @@ function RecordsPage() {
                       <td className="px-2 py-1.5 text-right whitespace-nowrap">
                         <Link
                           to="/invoice"
-                          search={{ edit: e.id }}
+                          search={{ ...search, edit: e.id }}
                           onClick={(ev) => ev.stopPropagation()}
                           className="mr-1 rounded-sm border border-paper/40 px-2 py-0.5 font-form-condensed text-[10px] font-bold uppercase hover:bg-paper/10"
                         >
@@ -144,7 +177,7 @@ function RecordsPage() {
                         </Link>
                         <Link
                           to="/invoice"
-                          search={{ edit: e.id, print: "1" }}
+                          search={{ ...search, edit: e.id, print: "1" }}
                           onClick={(ev) => ev.stopPropagation()}
                           className="mr-1 rounded-sm bg-paper px-2 py-0.5 font-form-condensed text-[10px] font-bold text-ink uppercase hover:opacity-90"
                         >
