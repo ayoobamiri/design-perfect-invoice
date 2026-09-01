@@ -25,11 +25,11 @@ export const Route = createFileRoute("/")({
 });
 
 function StartPage() {
-  const [nextId, setNextId] = useState("PIS100");
-  const [count, setCount] = useState(0);
+  const [smog, setSmog] = useState({ id: "PIS100", count: 0 });
+  const [auto, setAuto] = useState({ id: "PIA100", count: 0 });
   useEffect(() => {
-    setNextId(peekNextInvoiceId());
-    setCount(getEntries().length);
+    setSmog({ id: peekNextInvoiceId("smog"), count: getEntries("smog").length });
+    setAuto({ id: peekNextInvoiceId("auto"), count: getEntries("auto").length });
   }, []);
 
   return (
@@ -94,34 +94,60 @@ function StartPage() {
             </p>
           </div>
 
-          <div className="mx-auto mt-9 grid max-w-md gap-3 sm:grid-cols-2">
+          <div className="mx-auto mt-9 grid max-w-2xl gap-3 sm:grid-cols-2">
             <Link
               to="/invoice"
               search={{}}
               className="group rounded-sm bg-ink px-6 py-4 text-left text-paper ring-1 ring-ink transition hover:-translate-y-0.5 hover:shadow-[0_10px_25px_-8px_rgba(0,0,0,0.5)]"
             >
               <span className="font-form-condensed block text-base font-bold uppercase">
-                New Invoice →
+                New Smog Invoice →
               </span>
               <span className="font-form-mono mt-1 block text-[11px] opacity-70">
-                Start {nextId}
+                Power Inn Smog · Start {smog.id}
+              </span>
+            </Link>
+            <Link
+              to="/invoice"
+              search={{ brand: "auto" }}
+              className="group rounded-sm bg-ink px-6 py-4 text-left text-paper ring-1 ring-ink transition hover:-translate-y-0.5 hover:shadow-[0_10px_25px_-8px_rgba(0,0,0,0.5)]"
+            >
+              <span className="font-form-condensed block text-base font-bold uppercase">
+                New Automotive Invoice →
+              </span>
+              <span className="font-form-mono mt-1 block text-[11px] opacity-70">
+                Power Inn Automotive · Start {auto.id}
               </span>
             </Link>
             <Link
               to="/records"
+              search={{}}
               className="group rounded-sm border-2 border-ink px-6 py-4 text-left transition hover:-translate-y-0.5 hover:bg-ink hover:text-paper"
             >
               <span className="font-form-condensed block text-base font-bold uppercase">
-                View Sheet →
+                Smog Sheet →
               </span>
               <span className="font-form-mono mt-1 block text-[11px] opacity-70">
-                {count} saved {count === 1 ? "entry" : "entries"}
+                {smog.count} saved {smog.count === 1 ? "entry" : "entries"}
+              </span>
+            </Link>
+            <Link
+              to="/records"
+              search={{ brand: "auto" }}
+              className="group rounded-sm border-2 border-ink px-6 py-4 text-left transition hover:-translate-y-0.5 hover:bg-ink hover:text-paper"
+            >
+              <span className="font-form-condensed block text-base font-bold uppercase">
+                Automotive Sheet →
+              </span>
+              <span className="font-form-mono mt-1 block text-[11px] opacity-70">
+                {auto.count} saved {auto.count === 1 ? "entry" : "entries"}
               </span>
             </Link>
           </div>
 
           <p className="mt-8 font-form-mono text-[11px] text-ink-soft">
-            Next invoice: <span className="font-bold text-ink">{nextId}</span>
+            Next: <span className="font-bold text-ink">{smog.id}</span> (Smog) ·{" "}
+            <span className="font-bold text-ink">{auto.id}</span> (Automotive)
           </p>
         </div>
       </div>

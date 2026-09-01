@@ -10,12 +10,17 @@ import {
   saveDraft,
   saveEntry,
   updateEntry,
+  BRANDS,
+  toBrand,
 } from "@/lib/invoice-store";
 
 export const Route = createFileRoute("/invoice")({
-  validateSearch: (s: Record<string, unknown>): { edit?: string; print?: string } => ({
+  validateSearch: (
+    s: Record<string, unknown>,
+  ): { edit?: string; print?: string; brand?: string } => ({
     ...(typeof s["edit"] === "string" ? { edit: s["edit"] } : {}),
     ...(typeof s["print"] === "string" ? { print: s["print"] } : {}),
+    ...(s["brand"] === "auto" ? { brand: "auto" } : {}),
   }),
 
   head: () => ({
@@ -108,7 +113,9 @@ const EMISSIONS = [
 function InvoicePage() {
   const formRef = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
-  const { edit, print } = Route.useSearch();
+  const { edit, print, brand: brandParam } = Route.useSearch();
+  const brand = toBrand(brandParam);
+  const company = BRANDS[brand];
 
   const [invoiceId, setInvoiceId] = useState("");
   const [status, setStatus] = useState("");
@@ -190,11 +197,11 @@ function InvoicePage() {
   };
 
   useEffect(() => {
-    const entry = edit ? getEntry(edit) : undefined;
-    const data = entry?.data ?? (edit ? null : getDraft());
+    const entry = edit ? getEntry(edit, brand) : undefined;
+    const data = entry?.data ?? (edit ? null : getDraft(brand));
     savedIdRef.current = entry ? entry.id : null;
     applyData(data ?? {});
-    setInvoiceId(data?.["invoice_id"] || peekNextInvoiceId());
+    setInvoiceId(data?.["invoice_id"] || peekNextInvoiceId(brand));
     setStatus(entry ? `Editing saved invoice ${entry.data["invoice_id"] ?? ""}` : "");
     if (entry && print) {
       const prev = document.title;
@@ -209,11 +216,11 @@ function InvoicePage() {
     }
     return undefined;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [edit, print]);
+  }, [edit, print, brand]);
 
   const onFormInput = () => {
     if (edit || !invoiceId) return;
-    saveDraft(collectData());
+    saveDraft(collectData(), brand);
   };
 
   /* ----- actions ----- */
@@ -221,16 +228,16 @@ function InvoicePage() {
   const persist = () => {
     const data = collectData();
     if (savedIdRef.current) {
-      updateEntry(savedIdRef.current, data);
+      updateEntry(savedIdRef.current, data, brand);
       setStatus(`Updated ${data["invoice_id"]} at ${new Date().toLocaleTimeString()}`);
     } else {
       const id = crypto.randomUUID();
-      saveEntry({ id, savedAt: new Date().toISOString(), data });
+      saveEntry({ id, savedAt: new Date().toISOString(), data }, brand);
       savedIdRef.current = id;
-      commitInvoiceId(data["invoice_id"] ?? "");
+      commitInvoiceId(data["invoice_id"] ?? "", brand);
       setStatus(`Saved ${data["invoice_id"]} at ${new Date().toLocaleTimeString()}`);
     }
-    if (!edit) saveDraft(data);
+    if (!edit) saveDraft(data, brand);
     return data;
   };
 
@@ -239,12 +246,12 @@ function InvoicePage() {
   };
 
   const onNewInvoice = () => {
-    clearDraft();
+    clearDraft(brand);
     savedIdRef.current = null;
     applyData({});
-    setInvoiceId(peekNextInvoiceId());
+    setInvoiceId(peekNextInvoiceId(brand));
     setStatus("");
-    if (edit || print) navigate({ to: "/invoice", search: {} });
+    if (edit || print) navigate({ to: "/invoice", search: brand === "auto" ? { brand: "auto" } : {} });
   };
 
   return (
@@ -252,7 +259,7 @@ function InvoicePage() {
       {/* action bar (not printed) */}
       <div className="no-print mx-auto mb-3 flex w-full max-w-[1100px] flex-wrap items-center justify-between gap-2">
         <span className="font-form-condensed text-sm font-bold tracking-wide text-primary-foreground uppercase">
-          Power Inn Smog — Digital Invoice
+          {company.label} — Digital Invoice
           {status && (
             <span className="ml-3 font-normal normal-case opacity-70">{status}</span>
           )}
@@ -274,6 +281,7 @@ function InvoicePage() {
           </button>
           <Link
             to="/records"
+            search={brand === "auto" ? { brand: "auto" } : {}}
             className="rounded-sm border border-paper/60 px-4 py-2 font-form-condensed text-xs font-bold text-paper uppercase hover:bg-paper/10"
           >
             View Sheet
@@ -317,11 +325,13 @@ function InvoicePage() {
           <div className="text-center lg:w-[46%] lg:pt-2">
             <h1 className="font-form-display text-[34px] leading-none tracking-tight sm:text-[40px]">
 
-              POWER INN SMOG
+              {company.title}
             </h1>
-            <p className="font-form-display mt-1 text-[15px] tracking-[0.28em]">
-              TEST ONLY CENTER
-            </p>
+            {company.subtitle && (
+              <p className="font-form-display mt-1 text-[15px] tracking-[0.28em]">
+                {company.subtitle}
+              </p>
+            )}
             <p className="mt-1 text-[13px] font-semibold tracking-wide">
               4095 Power Inn Rd, Sacramento, CA 95826
             </p>
