@@ -193,7 +193,7 @@ function InvoicePage() {
     const entry = edit ? getEntry(edit) : undefined;
     const data = entry?.data ?? (edit ? null : getDraft());
     savedIdRef.current = entry ? entry.id : null;
-    if (data) applyData(data);
+    applyData(data ?? {});
     setInvoiceId(data?.["invoice_id"] || peekNextInvoiceId());
     setStatus(entry ? `Editing saved invoice ${entry.data["invoice_id"] ?? ""}` : "");
     if (entry && print) {
