@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { getEntries, peekNextInvoiceId } from "@/lib/invoice-store";
+import { getEntries } from "@/lib/invoice-store";
 import { useEffect, useState } from "react";
 
 export const Route = createFileRoute("/")({
@@ -25,11 +25,11 @@ export const Route = createFileRoute("/")({
 });
 
 function StartPage() {
-  const [smog, setSmog] = useState({ id: "PIS100", count: 0 });
-  const [auto, setAuto] = useState({ id: "PIA100", count: 0 });
+  const [smog, setSmog] = useState({ id: "PIS", count: 0 });
+  const [auto, setAuto] = useState({ id: "PIA", count: 0 });
   useEffect(() => {
-    setSmog({ id: peekNextInvoiceId("smog"), count: getEntries("smog").length });
-    setAuto({ id: peekNextInvoiceId("auto"), count: getEntries("auto").length });
+    setSmog({ id: "PIS", count: getEntries("smog").length });
+    setAuto({ id: "PIA", count: getEntries("auto").length });
   }, []);
 
   return (
@@ -104,7 +104,7 @@ function StartPage() {
                 New Smog Invoice →
               </span>
               <span className="font-form-mono mt-1 block text-[11px] opacity-70">
-                Power Inn Smog · Start {smog.id}
+                Power Inn Smog · {smog.id} number
               </span>
             </Link>
             <Link
@@ -116,7 +116,7 @@ function StartPage() {
                 New Automotive Invoice →
               </span>
               <span className="font-form-mono mt-1 block text-[11px] opacity-70">
-                Power Inn Automotive · Start {auto.id}
+                Power Inn Automotive · {auto.id} number
               </span>
             </Link>
             <Link
@@ -146,8 +146,9 @@ function StartPage() {
           </div>
 
           <p className="mt-8 font-form-mono text-[11px] text-ink-soft">
-            Next: <span className="font-bold text-ink">{smog.id}</span> (Smog) ·{" "}
-            <span className="font-bold text-ink">{auto.id}</span> (Automotive)
+            Invoice numbers are entered manually —{" "}
+            <span className="font-bold text-ink">PIS</span> for Smog,{" "}
+            <span className="font-bold text-ink">PIA</span> for Automotive.
           </p>
         </div>
       </div>
