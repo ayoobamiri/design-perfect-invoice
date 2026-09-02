@@ -181,7 +181,7 @@ function RecordsPage() {
                           onClick={(ev) => ev.stopPropagation()}
                           className="mr-1 rounded-sm bg-paper px-2 py-0.5 font-form-condensed text-[10px] font-bold text-ink uppercase hover:opacity-90"
                         >
-                          Save PDF
+                          Save PDF / Print
                         </Link>
                         <button
                           onClick={(ev) => {
