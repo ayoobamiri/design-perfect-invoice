@@ -73,7 +73,7 @@ function StartPage() {
 
           <h1 className="font-form-display mt-4 text-[44px] leading-[0.95] tracking-tight sm:text-[64px]">
             POWER INN
-            <span className="block">SMOG</span>
+            <span className="block">SMOG and AUTOMOTIVE</span>
           </h1>
 
           <div className="mx-auto mt-4 flex items-center justify-center gap-3">

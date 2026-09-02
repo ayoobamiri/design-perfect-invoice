@@ -6,7 +6,7 @@ import {
   getDraft,
   getEntry,
   invoiceFileName,
-  peekNextInvoiceId,
+  getEntries,
   saveDraft,
   saveEntry,
   updateEntry,
@@ -201,7 +201,7 @@ function InvoicePage() {
     const data = entry?.data ?? (edit ? null : getDraft(brand));
     savedIdRef.current = entry ? entry.id : null;
     applyData(data ?? {});
-    setInvoiceId(data?.["invoice_id"] || peekNextInvoiceId(brand));
+    setInvoiceId(data?.["invoice_id"] || company.prefix);
     setStatus(entry ? `Editing saved invoice ${entry.data["invoice_id"] ?? ""}` : "");
     if (entry && print) {
       const prev = document.title;
@@ -227,13 +227,29 @@ function InvoicePage() {
 
   const persist = () => {
     const data = collectData();
+    const id = (data["invoice_id"] ?? "").trim();
+    if (!id || id.toUpperCase() === company.prefix) {
+      setStatus("Please enter an invoice number.");
+      window.alert("Please enter an invoice number.");
+      return undefined;
+    }
+    const clash = getEntries(brand).some(
+      (e) =>
+        e.id !== savedIdRef.current &&
+        (e.data["invoice_id"] ?? "").trim().toUpperCase() === id.toUpperCase(),
+    );
+    if (clash) {
+      setStatus(`Invoice number ${id} already used.`);
+      window.alert(`You already used this number (${id}). Please enter a different one.`);
+      return undefined;
+    }
     if (savedIdRef.current) {
       updateEntry(savedIdRef.current, data, brand);
       setStatus(`Updated ${data["invoice_id"]} at ${new Date().toLocaleTimeString()}`);
     } else {
-      const id = crypto.randomUUID();
-      saveEntry({ id, savedAt: new Date().toISOString(), data }, brand);
-      savedIdRef.current = id;
+      const rowId = crypto.randomUUID();
+      saveEntry({ id: rowId, savedAt: new Date().toISOString(), data }, brand);
+      savedIdRef.current = rowId;
       commitInvoiceId(data["invoice_id"] ?? "", brand);
       setStatus(`Saved ${data["invoice_id"]} at ${new Date().toLocaleTimeString()}`);
     }
@@ -249,7 +265,7 @@ function InvoicePage() {
     clearDraft(brand);
     savedIdRef.current = null;
     applyData({});
-    setInvoiceId(peekNextInvoiceId(brand));
+    setInvoiceId(company.prefix);
     setStatus("");
     if (edit || print) navigate({ to: "/invoice", search: brand === "auto" ? { brand: "auto" } : {} });
   };
@@ -475,6 +491,25 @@ function InvoicePage() {
                       key={i}
                       maxLength={1}
                       name={`vin_${i}`}
+                      onInput={(e) => {
+                        const el = e.currentTarget;
+                        if (el.value && i < 16) {
+                          const next = formRef.current?.elements.namedItem(
+                            `vin_${i + 1}`,
+                          ) as HTMLInputElement | null;
+                          next?.focus();
+                          next?.select();
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Backspace" && !e.currentTarget.value && i > 0) {
+                          const prev = formRef.current?.elements.namedItem(
+                            `vin_${i - 1}`,
+                          ) as HTMLInputElement | null;
+                          prev?.focus();
+                          prev?.select();
+                        }
+                      }}
                       className="form-input h-6 border border-ink text-center uppercase"
                       aria-label={`VIN character ${i + 1}`}
                     />
