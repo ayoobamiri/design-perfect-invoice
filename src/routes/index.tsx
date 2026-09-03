@@ -145,6 +145,31 @@ function StartPage() {
             </Link>
           </div>
 
+          <div className="mx-auto mt-4 grid max-w-2xl gap-3 sm:grid-cols-2">
+            <Link
+              to="/customer"
+              className="group rounded-sm border-2 border-ink px-6 py-4 text-left transition hover:-translate-y-0.5 hover:bg-ink hover:text-paper"
+            >
+              <span className="font-form-condensed block text-base font-bold uppercase">
+                Customer Check-In (iPad) →
+              </span>
+              <span className="font-form-mono mt-1 block text-[11px] opacity-70">
+                Customer fills in their own info
+              </span>
+            </Link>
+            <Link
+              to="/submissions"
+              className="group rounded-sm border-2 border-ink px-6 py-4 text-left transition hover:-translate-y-0.5 hover:bg-ink hover:text-paper"
+            >
+              <span className="font-form-condensed block text-base font-bold uppercase">
+                Customer Submissions →
+              </span>
+              <span className="font-form-mono mt-1 block text-[11px] opacity-70">
+                Staff only · passcode required
+              </span>
+            </Link>
+          </div>
+
           <p className="mt-8 font-form-mono text-[11px] text-ink-soft">
             Invoice numbers are entered manually —{" "}
             <span className="font-bold text-ink">PIS</span> for Smog,{" "}
