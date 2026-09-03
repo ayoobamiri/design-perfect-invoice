@@ -38,6 +38,7 @@ const FIELDS: { name: string; label: string; type?: string; required?: boolean }
   { name: "address", label: "Address" },
   { name: "city", label: "City" },
   { name: "zip", label: "Zip" },
+  { name: "email", label: "Email", type: "email" },
   { name: "written_by", label: "Written By" },
   { name: "res_phone", label: "Res. Phone", type: "tel" },
   { name: "bus_phone", label: "Bus. Phone", type: "tel" },
@@ -98,6 +99,13 @@ function CustomerPage() {
           >
             New Customer Form
           </button>
+          <Link
+            to="/"
+            search={{}}
+            className="mt-4 block text-center font-form-mono text-[12px] font-semibold text-ink-soft underline"
+          >
+            Back to home
+          </Link>
         </div>
       </div>
     );
@@ -107,6 +115,14 @@ function CustomerPage() {
     <div className="min-h-screen bg-background px-4 py-8">
       <div className="mx-auto w-full max-w-3xl">
         <div className="form-box bg-paper px-5 py-8 text-ink sm:px-10">
+          <div className="mb-4">
+            <Link
+              to="/checkin"
+              className="font-form-mono text-[12px] font-semibold text-ink-soft underline"
+            >
+              ← Back
+            </Link>
+          </div>
           <header className="text-center">
             <h1 className="font-form-display text-[30px] leading-none sm:text-[38px]">
               POWER INN SMOG &amp; AUTOMOTIVE
