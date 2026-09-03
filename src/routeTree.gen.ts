@@ -10,14 +10,21 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as CheckinRouteImport } from './routes/checkin'
 import { Route as CustomerRouteImport } from './routes/customer'
 import { Route as InvoiceRouteImport } from './routes/invoice'
 import { Route as RecordsRouteImport } from './routes/records'
+import { Route as StaffRouteImport } from './routes/staff'
 import { Route as SubmissionsRouteImport } from './routes/submissions'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckinRoute = CheckinRouteImport.update({
+  id: '/checkin',
+  path: '/checkin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CustomerRoute = CustomerRouteImport.update({
@@ -35,6 +42,11 @@ const RecordsRoute = RecordsRouteImport.update({
   path: '/records',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StaffRoute = StaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SubmissionsRoute = SubmissionsRouteImport.update({
   id: '/submissions',
   path: '/submissions',
@@ -43,39 +55,69 @@ const SubmissionsRoute = SubmissionsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/checkin': typeof CheckinRoute
   '/customer': typeof CustomerRoute
   '/invoice': typeof InvoiceRoute
   '/records': typeof RecordsRoute
+  '/staff': typeof StaffRoute
   '/submissions': typeof SubmissionsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/checkin': typeof CheckinRoute
   '/customer': typeof CustomerRoute
   '/invoice': typeof InvoiceRoute
   '/records': typeof RecordsRoute
+  '/staff': typeof StaffRoute
   '/submissions': typeof SubmissionsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/checkin': typeof CheckinRoute
   '/customer': typeof CustomerRoute
   '/invoice': typeof InvoiceRoute
   '/records': typeof RecordsRoute
+  '/staff': typeof StaffRoute
   '/submissions': typeof SubmissionsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/customer' | '/invoice' | '/records' | '/submissions'
+  fullPaths:
+    | '/'
+    | '/checkin'
+    | '/customer'
+    | '/invoice'
+    | '/records'
+    | '/staff'
+    | '/submissions'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/customer' | '/invoice' | '/records' | '/submissions'
-  id: '__root__' | '/' | '/customer' | '/invoice' | '/records' | '/submissions'
+  to:
+    | '/'
+    | '/checkin'
+    | '/customer'
+    | '/invoice'
+    | '/records'
+    | '/staff'
+    | '/submissions'
+  id:
+    | '__root__'
+    | '/'
+    | '/checkin'
+    | '/customer'
+    | '/invoice'
+    | '/records'
+    | '/staff'
+    | '/submissions'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CheckinRoute: typeof CheckinRoute
   CustomerRoute: typeof CustomerRoute
   InvoiceRoute: typeof InvoiceRoute
   RecordsRoute: typeof RecordsRoute
+  StaffRoute: typeof StaffRoute
   SubmissionsRoute: typeof SubmissionsRoute
 }
 
@@ -86,6 +128,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkin': {
+      id: '/checkin'
+      path: '/checkin'
+      fullPath: '/checkin'
+      preLoaderRoute: typeof CheckinRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/customer': {
@@ -109,6 +158,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecordsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/staff': {
+      id: '/staff'
+      path: '/staff'
+      fullPath: '/staff'
+      preLoaderRoute: typeof StaffRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/submissions': {
       id: '/submissions'
       path: '/submissions'
@@ -121,9 +177,11 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CheckinRoute: CheckinRoute,
   CustomerRoute: CustomerRoute,
   InvoiceRoute: InvoiceRoute,
   RecordsRoute: RecordsRoute,
+  StaffRoute: StaffRoute,
   SubmissionsRoute: SubmissionsRoute,
 }
 export const routeTree = rootRouteImport

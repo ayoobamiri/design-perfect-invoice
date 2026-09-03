@@ -49,7 +49,8 @@ const FIELDS: { name: string; label: string; type?: string; required?: boolean }
 
 function CustomerPage() {
   const { brand } = Route.useSearch();
-  const label = BRAND_LABEL[brand];
+  const label = BRAND_LABEL[brand ?? "smog"];
+
 
   const [values, setValues] = useState<Record<string, string>>({});
   const [state, setState] = useState<"idle" | "saving" | "done" | "error">("idle");
