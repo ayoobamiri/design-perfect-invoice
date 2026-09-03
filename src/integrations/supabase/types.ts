@@ -20,6 +20,7 @@ export type Database = {
           bus_phone: string
           city: string
           created_at: string
+          email: string
           id: string
           license_plate: string
           make: string
@@ -36,6 +37,7 @@ export type Database = {
           bus_phone?: string
           city?: string
           created_at?: string
+          email?: string
           id?: string
           license_plate?: string
           make?: string
@@ -52,6 +54,7 @@ export type Database = {
           bus_phone?: string
           city?: string
           created_at?: string
+          email?: string
           id?: string
           license_plate?: string
           make?: string

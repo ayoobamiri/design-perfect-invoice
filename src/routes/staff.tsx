@@ -160,7 +160,15 @@ function StaffPage() {
             </Link>
           </div>
 
-          <p className="mt-8 font-form-mono text-[11px] text-ink-soft">
+          <Link
+            to="/"
+            search={{}}
+            className="mt-8 inline-block font-form-mono text-[11px] font-semibold text-ink-soft underline"
+          >
+            ← Back to home
+          </Link>
+
+          <p className="mt-4 font-form-mono text-[11px] text-ink-soft">
             Invoice numbers are entered manually —{" "}
             <span className="font-bold text-ink">PIS</span> for Smog,{" "}
             <span className="font-bold text-ink">PIA</span> for Automotive.

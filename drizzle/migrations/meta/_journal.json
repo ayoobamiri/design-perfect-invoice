@@ -8,6 +8,13 @@
       "when": 1788387690080,
       "tag": "0000_create_customer_submissions",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1788407766382,
+      "tag": "0001_add_email_to_customer_submissions",
+      "breakpoints": true
     }
   ]
 }
