@@ -1,8 +1,11 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/customer")({
+  validateSearch: (s: Record<string, unknown>): { brand?: "smog" | "auto" } => ({
+    brand: s["brand"] === "auto" ? "auto" : "smog",
+  }),
   head: () => ({
     meta: [
       { title: "Customer Check-In — Power Inn Smog & Automotive" },
@@ -25,6 +28,11 @@ export const Route = createFileRoute("/customer")({
   component: CustomerPage,
 });
 
+const BRAND_LABEL: Record<"smog" | "auto", string> = {
+  smog: "Smog",
+  auto: "Automotive",
+};
+
 const FIELDS: { name: string; label: string; type?: string; required?: boolean }[] = [
   { name: "name", label: "Full Name", required: true },
   { name: "address", label: "Address" },
@@ -40,6 +48,10 @@ const FIELDS: { name: string; label: string; type?: string; required?: boolean }
 ];
 
 function CustomerPage() {
+  const { brand } = Route.useSearch();
+  const label = BRAND_LABEL[brand ?? "smog"];
+
+
   const [values, setValues] = useState<Record<string, string>>({});
   const [state, setState] = useState<"idle" | "saving" | "done" | "error">("idle");
 
@@ -103,7 +115,7 @@ function CustomerPage() {
               4095 Power Inn Rd, Sacramento, CA 95826
             </p>
             <p className="font-form-condensed mt-4 text-[13px] font-bold tracking-[0.3em] uppercase">
-              Customer Check-In
+              Customer Check-In — {label}
             </p>
           </header>
 

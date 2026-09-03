@@ -1,28 +1,37 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { getEntries } from "@/lib/invoice-store";
+import { useEffect, useState } from "react";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/staff")({
   head: () => ({
     meta: [
-      { title: "Power Inn Smog & Automotive" },
+      { title: "Staff Portal — Power Inn Smog & Automotive" },
       {
         name: "description",
         content:
-          "Staff portal and customer check-in for Power Inn Smog & Automotive, Sacramento.",
+          "Staff portal for Power Inn Smog Test Only Center: create smog and automotive invoices and view saved sheets.",
       },
-      { property: "og:title", content: "Power Inn Smog & Automotive" },
+      { property: "og:title", content: "Staff Portal — Power Inn Smog & Automotive" },
       {
         property: "og:description",
         content:
-          "Staff portal and customer check-in for Power Inn Smog & Automotive, Sacramento.",
+          "Staff portal for Power Inn Smog Test Only Center: create smog and automotive invoices and view saved sheets.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: HomePage,
+  component: StaffPage,
 });
 
-function HomePage() {
+function StaffPage() {
+  const [smog, setSmog] = useState({ id: "PIS", count: 0 });
+  const [auto, setAuto] = useState({ id: "PIA", count: 0 });
+  useEffect(() => {
+    setSmog({ id: "PIS", count: getEntries("smog").length });
+    setAuto({ id: "PIA", count: getEntries("auto").length });
+  }, []);
+
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 py-12">
       {/* backdrop accents */}
@@ -79,6 +88,7 @@ function HomePage() {
             <p className="text-[13px] font-semibold tracking-wide">
               4095 Power Inn Rd, Sacramento, CA 95826
             </p>
+            <p className="text-[12px] font-semibold text-ink-soft">ARD 307549</p>
             <p className="font-form-mono mt-1 text-[19px] font-bold">
               (916) 877-SMOG (7664)
             </p>
@@ -86,30 +96,75 @@ function HomePage() {
 
           <div className="mx-auto mt-9 grid max-w-2xl gap-3 sm:grid-cols-2">
             <Link
-              to="/staff"
+              to="/invoice"
               search={{}}
               className="group rounded-sm bg-ink px-6 py-4 text-left text-paper ring-1 ring-ink transition hover:-translate-y-0.5 hover:shadow-[0_10px_25px_-8px_rgba(0,0,0,0.5)]"
             >
               <span className="font-form-condensed block text-base font-bold uppercase">
-                Staff only →
+                New Smog Invoice →
               </span>
               <span className="font-form-mono mt-1 block text-[11px] opacity-70">
-                Invoices, sheets, and records
+                Power Inn Smog · {smog.id} number
               </span>
             </Link>
             <Link
-              to="/checkin"
+              to="/invoice"
+              search={{ brand: "auto" }}
+              className="group rounded-sm bg-ink px-6 py-4 text-left text-paper ring-1 ring-ink transition hover:-translate-y-0.5 hover:shadow-[0_10px_25px_-8px_rgba(0,0,0,0.5)]"
+            >
+              <span className="font-form-condensed block text-base font-bold uppercase">
+                New Automotive Invoice →
+              </span>
+              <span className="font-form-mono mt-1 block text-[11px] opacity-70">
+                Power Inn Automotive · {auto.id} number
+              </span>
+            </Link>
+            <Link
+              to="/records"
               search={{}}
               className="group rounded-sm border-2 border-ink px-6 py-4 text-left transition hover:-translate-y-0.5 hover:bg-ink hover:text-paper"
             >
               <span className="font-form-condensed block text-base font-bold uppercase">
-                Customer Check-In →
+                Smog Sheet →
               </span>
               <span className="font-form-mono mt-1 block text-[11px] opacity-70">
-                iPad form for customers
+                {smog.count} saved {smog.count === 1 ? "entry" : "entries"}
+              </span>
+            </Link>
+            <Link
+              to="/records"
+              search={{ brand: "auto" }}
+              className="group rounded-sm border-2 border-ink px-6 py-4 text-left transition hover:-translate-y-0.5 hover:bg-ink hover:text-paper"
+            >
+              <span className="font-form-condensed block text-base font-bold uppercase">
+                Automotive Sheet →
+              </span>
+              <span className="font-form-mono mt-1 block text-[11px] opacity-70">
+                {auto.count} saved {auto.count === 1 ? "entry" : "entries"}
               </span>
             </Link>
           </div>
+
+          <div className="mx-auto mt-4 grid max-w-2xl gap-3">
+            <Link
+              to="/submissions"
+              search={{}}
+              className="group rounded-sm border-2 border-ink px-6 py-4 text-left transition hover:-translate-y-0.5 hover:bg-ink hover:text-paper"
+            >
+              <span className="font-form-condensed block text-base font-bold uppercase">
+                Customer Submissions →
+              </span>
+              <span className="font-form-mono mt-1 block text-[11px] opacity-70">
+                Staff only · passcode required
+              </span>
+            </Link>
+          </div>
+
+          <p className="mt-8 font-form-mono text-[11px] text-ink-soft">
+            Invoice numbers are entered manually —{" "}
+            <span className="font-bold text-ink">PIS</span> for Smog,{" "}
+            <span className="font-bold text-ink">PIA</span> for Automotive.
+          </p>
         </div>
       </div>
     </div>
