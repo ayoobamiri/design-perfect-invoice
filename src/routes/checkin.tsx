@@ -1,28 +1,29 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/checkin")({
   head: () => ({
     meta: [
-      { title: "Power Inn Smog & Automotive" },
+      { title: "Customer Check-In — Power Inn Smog & Automotive" },
       {
         name: "description",
         content:
-          "Staff portal and customer check-in for Power Inn Smog & Automotive, Sacramento.",
+          "Customer self check-in for Power Inn Smog & Automotive. Choose Smog or Automotive service.",
       },
-      { property: "og:title", content: "Power Inn Smog & Automotive" },
+      { property: "og:title", content: "Customer Check-In — Power Inn Smog & Automotive" },
       {
         property: "og:description",
         content:
-          "Staff portal and customer check-in for Power Inn Smog & Automotive, Sacramento.",
+          "Customer self check-in for Power Inn Smog & Automotive. Choose Smog or Automotive service.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
+      { name: "robots", content: "noindex" },
     ],
   }),
-  component: HomePage,
+  component: CheckInPage,
 });
 
-function HomePage() {
+function CheckInPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 py-12">
       {/* backdrop accents */}
@@ -59,7 +60,7 @@ function HomePage() {
           )}
 
           <p className="font-form-condensed text-[11px] font-bold tracking-[0.45em] text-ink-soft uppercase">
-            Repair Order &amp; Smog Invoice System
+            Customer Self Check-In
           </p>
 
           <h1 className="font-form-display mt-4 text-[44px] leading-[0.95] tracking-tight sm:text-[64px]">
@@ -86,30 +87,38 @@ function HomePage() {
 
           <div className="mx-auto mt-9 grid max-w-2xl gap-3 sm:grid-cols-2">
             <Link
-              to="/staff"
-              search={{}}
+              to="/customer"
+              search={{ brand: "smog" }}
               className="group rounded-sm bg-ink px-6 py-4 text-left text-paper ring-1 ring-ink transition hover:-translate-y-0.5 hover:shadow-[0_10px_25px_-8px_rgba(0,0,0,0.5)]"
             >
               <span className="font-form-condensed block text-base font-bold uppercase">
-                Staff only →
+                Customer Check-In — Smog →
               </span>
               <span className="font-form-mono mt-1 block text-[11px] opacity-70">
-                Invoices, sheets, and records
+                Touchscreen form for smog customers
               </span>
             </Link>
             <Link
-              to="/checkin"
-              search={{}}
+              to="/customer"
+              search={{ brand: "auto" }}
               className="group rounded-sm border-2 border-ink px-6 py-4 text-left transition hover:-translate-y-0.5 hover:bg-ink hover:text-paper"
             >
               <span className="font-form-condensed block text-base font-bold uppercase">
-                Customer Check-In →
+                Customer Check-In — Automotive →
               </span>
               <span className="font-form-mono mt-1 block text-[11px] opacity-70">
-                iPad form for customers
+                Touchscreen form for automotive customers
               </span>
             </Link>
           </div>
+
+          <Link
+            to="/"
+            search={{}}
+            className="mt-8 inline-block font-form-mono text-[11px] font-semibold text-ink-soft underline"
+          >
+            Back to home
+          </Link>
         </div>
       </div>
     </div>
