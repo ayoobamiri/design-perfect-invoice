@@ -1,0 +1,1 @@
+ALTER TABLE public.customer_submissions ADD COLUMN IF NOT EXISTS email TEXT NOT NULL DEFAULT ''::text;
