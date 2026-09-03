@@ -1,5 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { PENDING_CUSTOMER_KEY } from "@/lib/pending-customer";
 import {
   clearDraft,
   commitInvoiceId,
