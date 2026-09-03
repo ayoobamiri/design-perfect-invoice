@@ -200,7 +200,19 @@ function InvoicePage() {
     const entry = edit ? getEntry(edit, brand) : undefined;
     const data = entry?.data ?? (edit ? null : getDraft(brand));
     savedIdRef.current = entry ? entry.id : null;
-    applyData(data ?? {});
+    let merged = data ?? {};
+    if (!edit) {
+      const pending = sessionStorage.getItem(PENDING_CUSTOMER_KEY);
+      if (pending) {
+        sessionStorage.removeItem(PENDING_CUSTOMER_KEY);
+        try {
+          merged = { ...merged, ...(JSON.parse(pending) as Record<string, string>) };
+        } catch {
+          /* ignore malformed pending customer data */
+        }
+      }
+    }
+    applyData(merged);
     setInvoiceId(data?.["invoice_id"] || company.prefix);
     setStatus(entry ? `Editing saved invoice ${entry.data["invoice_id"] ?? ""}` : "");
     if (entry && print) {
