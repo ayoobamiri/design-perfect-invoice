@@ -1,6 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
 import { useSession } from "@tanstack/react-start/server";
-import { createHash, timingSafeEqual } from "node:crypto";
 
 export type CustomerSubmission = {
   id: string;
@@ -31,15 +30,9 @@ function sessionConfig() {
   };
 }
 
-function matches(input: string, expected: string) {
-  const a = createHash("sha256").update(input, "utf8").digest();
-  const b = createHash("sha256").update(expected, "utf8").digest();
-  return timingSafeEqual(a, b);
-}
-
+// Passcode gate temporarily disabled — staff access is open.
 export const shopStatus = createServerFn({ method: "GET" }).handler(async () => {
-  const session = await useSession<GateSession>(sessionConfig());
-  return { unlocked: session.data.unlocked === true };
+  return { unlocked: true };
 });
 
 export const unlockShop = createServerFn({ method: "POST" })
@@ -47,9 +40,7 @@ export const unlockShop = createServerFn({ method: "POST" })
     passcode: String(data?.passcode ?? "").slice(0, 200),
   }))
   .handler(async ({ data }) => {
-    const expected = process.env["SHOP_PASSCODE"];
-    if (!expected) throw new Error("SHOP_PASSCODE is not set");
-    if (!matches(data.passcode, expected)) return { ok: false as const };
+    void data;
     const session = await useSession<GateSession>(sessionConfig());
     await session.update({ unlocked: true });
     return { ok: true as const };
@@ -62,9 +53,6 @@ export const lockShop = createServerFn({ method: "POST" }).handler(async () => {
 });
 
 export const listSubmissions = createServerFn({ method: "GET" }).handler(async () => {
-  const session = await useSession<GateSession>(sessionConfig());
-  if (!session.data.unlocked) return { unlocked: false as const, submissions: [] };
-
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await supabaseAdmin
     .from("customer_submissions")
@@ -80,8 +68,6 @@ export const listSubmissions = createServerFn({ method: "GET" }).handler(async (
 export const deleteSubmission = createServerFn({ method: "POST" })
   .inputValidator((data: { id: string }) => ({ id: String(data?.id ?? "") }))
   .handler(async ({ data }) => {
-    const session = await useSession<GateSession>(sessionConfig());
-    if (!session.data.unlocked) return { ok: false as const };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin
       .from("customer_submissions")
