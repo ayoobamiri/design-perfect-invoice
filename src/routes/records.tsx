@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { Fragment, useEffect, useState } from "react";
 import {
   deleteEntry,
@@ -9,7 +10,7 @@ import {
   BRANDS,
   toBrand,
 } from "@/lib/invoice-store";
-import { listSubmissions } from "@/lib/shop-gate.functions";
+import { listSubmissions, unlockShop } from "@/lib/shop-gate.functions";
 
 export const Route = createFileRoute("/records")({
   validateSearch: (s: Record<string, unknown>): { brand?: string } => ({
@@ -53,6 +54,58 @@ function RecordsPage() {
   const brand = toBrand(brandParam);
   const search = brand === "auto" ? { brand: "auto" as const } : {};
   const [entries, setEntries] = useState<InvoiceEntry[]>(() => getEntries(brand));
+  const list = useServerFn(listSubmissions);
+  const unlock = useServerFn(unlockShop);
+  const [access, setAccess] = useState<"loading" | "locked" | "unlocked" | "error">(
+    "loading",
+  );
+  const [passcode, setPasscode] = useState("");
+  const [accessError, setAccessError] = useState("");
+
+  async function importSubmissions() {
+    const res = await list({});
+    if (!res.unlocked) {
+      setAccess("locked");
+      return;
+    }
+    const existing = new Set(
+      getEntries(brand)
+        .map((entry) => entry.data["submission_id"])
+        .filter(Boolean) as string[],
+    );
+    const incoming = res.submissions
+      .filter((submission) => (submission.brand === "auto" ? "auto" : "smog") === brand)
+      .filter((submission) => !existing.has(submission.id))
+      .reverse();
+    incoming.forEach((submission) => {
+      saveEntry(
+        {
+          id: crypto.randomUUID(),
+          savedAt: submission.created_at,
+          data: {
+            submission_id: submission.id,
+            invoice_id: BRANDS[brand].prefix,
+            date_in: new Date(submission.created_at).toLocaleDateString(),
+            name: submission.name,
+            address: submission.address,
+            city: submission.city,
+            zip: submission.zip,
+            written_by: submission.written_by,
+            res_phone: submission.res_phone,
+            bus_phone: submission.bus_phone,
+            year: submission.year,
+            make: submission.make,
+            model: submission.model,
+            license_plate: submission.license_plate,
+            email: submission.email,
+          },
+        },
+        brand,
+      );
+    });
+    setEntries(getEntries(brand));
+    setAccess("unlocked");
+  }
 
   useEffect(() => {
     setEntries(getEntries(brand));
@@ -61,56 +114,34 @@ function RecordsPage() {
     let cancelled = false;
     (async () => {
       try {
-        const res = await listSubmissions();
-        if (cancelled || !res.unlocked) return;
-        const existing = new Set(
-          getEntries(brand)
-            .map((e) => e.data["submission_id"])
-            .filter(Boolean) as string[],
-        );
-        const incoming = res.submissions
-          .filter((s) => (s.brand === "auto" ? "auto" : "smog") === brand)
-          .filter((s) => !existing.has(s.id))
-          .reverse();
-        if (incoming.length === 0) return;
-        incoming.forEach((s) => {
-          saveEntry(
-            {
-              id: crypto.randomUUID(),
-              savedAt: s.created_at,
-              data: {
-                submission_id: s.id,
-                invoice_id: BRANDS[brand].prefix,
-                date_in: new Date(s.created_at).toLocaleDateString(),
-                name: s.name,
-                address: s.address,
-                city: s.city,
-                zip: s.zip,
-                written_by: s.written_by,
-                res_phone: s.res_phone,
-                bus_phone: s.bus_phone,
-                year: s.year,
-                make: s.make,
-                model: s.model,
-                license_plate: s.license_plate,
-                email: s.email,
-              },
-            },
-            brand,
-          );
-        });
-        setEntries(getEntries(brand));
+        await importSubmissions();
       } catch {
-        /* not unlocked / offline — sheet still works */
+        if (!cancelled) setAccess("error");
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [brand]);
+  }, [brand, list]);
   const [expanded, setExpanded] = useState<string | null>(null);
   function setExpandedSafe(v: string | null) {
     setExpanded(v);
+  }
+
+  async function onUnlock(e: React.FormEvent) {
+    e.preventDefault();
+    setAccessError("");
+    try {
+      const result = await unlock({ data: { passcode } });
+      if (!result.ok) {
+        setAccessError("Incorrect passcode.");
+        return;
+      }
+      setPasscode("");
+      await importSubmissions();
+    } catch {
+      setAccessError("Unable to connect. Please try again.");
+    }
   }
 
   const downloadCsv = () => {
@@ -185,9 +216,59 @@ function RecordsPage() {
           ))}
         </div>
 
+        {access === "locked" && (
+          <form
+            onSubmit={onUnlock}
+            className="mt-4 flex flex-col gap-3 rounded-sm border border-paper/40 bg-paper/10 p-4 sm:flex-row sm:items-end"
+          >
+            <label className="flex-1">
+              <span className="font-form-condensed block text-sm font-bold uppercase">
+                Staff passcode to receive customer check-ins
+              </span>
+              <input
+                type="password"
+                value={passcode}
+                onChange={(e) => setPasscode(e.target.value)}
+                autoComplete="current-password"
+                className="mt-1 w-full rounded-sm border-2 border-paper bg-background px-4 py-3 text-lg text-paper outline-none"
+              />
+            </label>
+            <button
+              type="submit"
+              className="rounded-sm bg-paper px-6 py-3 font-form-condensed text-sm font-bold text-ink uppercase"
+            >
+              Unlock &amp; Import
+            </button>
+            {accessError && <p className="text-sm font-bold text-destructive">{accessError}</p>}
+          </form>
+        )}
+
+        {access === "error" && (
+          <p className="mt-4 border border-paper/40 px-4 py-3 text-sm font-bold">
+            Customer check-ins could not be loaded. Please refresh and try again.
+          </p>
+        )}
+
+        {access === "unlocked" && (
+          <div className="mt-4 flex items-center justify-between gap-3 border-y border-paper/20 py-3">
+            <p className="font-form-condensed text-sm font-bold uppercase">
+              Customer check-ins are connected to this sheet.
+            </p>
+            <button
+              type="button"
+              onClick={() => void importSubmissions()}
+              className="rounded-sm border border-paper/60 px-4 py-2 font-form-condensed text-xs font-bold uppercase hover:bg-paper/10"
+            >
+              Import New Check-Ins
+            </button>
+          </div>
+        )}
+
         {entries.length === 0 ? (
           <p className="mt-10 text-center font-form-condensed text-sm text-paper/70">
-            No entries yet — fill out the invoice and hit Save Entry.
+            {access === "locked"
+              ? "Unlock above to receive customer check-ins."
+              : "No entries yet — customer check-ins will appear here automatically."}
           </p>
         ) : (
           <div className="mt-4 overflow-x-auto rounded-sm border border-paper/30">

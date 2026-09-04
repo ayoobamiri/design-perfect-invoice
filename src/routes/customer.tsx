@@ -85,24 +85,24 @@ function CustomerPage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background px-6 py-16">
         <div className="form-box w-full max-w-xl bg-paper px-8 py-14 text-center text-ink">
-          <h1 className="font-form-display text-[34px] leading-tight">Thank you.</h1>
-          <p className="mt-4 text-lg font-semibold">
+          <h1 className="font-form-display text-[38px] leading-tight">Thank you.</h1>
+          <p className="mt-4 text-xl font-semibold">
             Your information has been submitted.
           </p>
-          <p className="mt-2 text-sm text-ink-soft">
+          <p className="mt-2 text-base text-ink-soft">
             Please hand the iPad back to our staff.
           </p>
           <button
             type="button"
             onClick={() => setState("idle")}
-            className="mt-10 w-full rounded-sm bg-ink px-6 py-5 text-lg font-bold text-paper uppercase"
+            className="mt-10 w-full rounded-sm bg-ink px-6 py-5 text-xl font-bold text-paper uppercase"
           >
             New Customer Form
           </button>
           <Link
             to="/"
             search={{}}
-            className="mt-4 block text-center font-form-mono text-[12px] font-semibold text-ink-soft underline"
+            className="mt-4 block text-center font-form-mono text-sm font-semibold text-ink-soft underline"
           >
             Back to home
           </Link>
@@ -118,19 +118,19 @@ function CustomerPage() {
           <div className="mb-4">
             <Link
               to="/checkin"
-              className="font-form-mono text-[12px] font-semibold text-ink-soft underline"
+              className="font-form-mono text-sm font-semibold text-ink-soft underline"
             >
               ← Back
             </Link>
           </div>
           <header className="text-center">
-            <h1 className="font-form-display text-[30px] leading-none sm:text-[38px]">
+            <h1 className="font-form-display text-[34px] leading-none sm:text-[42px]">
               POWER INN SMOG &amp; AUTOMOTIVE
             </h1>
-            <p className="mt-2 text-sm font-semibold">
+            <p className="mt-2 text-base font-semibold">
               4095 Power Inn Rd, Sacramento, CA 95826
             </p>
-            <p className="font-form-condensed mt-4 text-[13px] font-bold tracking-[0.3em] uppercase">
+            <p className="font-form-condensed mt-4 text-base font-bold tracking-[0.3em] uppercase">
               Customer Check-In — {label}
             </p>
           </header>
@@ -138,7 +138,7 @@ function CustomerPage() {
           <form onSubmit={onSubmit} className="mt-8 space-y-5">
             {FIELDS.map((f) => (
               <label key={f.name} className="block">
-                <span className="font-form-condensed block text-[13px] font-bold tracking-wide uppercase">
+                <span className="font-form-condensed block text-[15px] font-bold tracking-wide uppercase">
                   {f.label}
                   {f.required && " *"}
                 </span>
@@ -148,13 +148,13 @@ function CustomerPage() {
                   onChange={(e) => set(f.name, e.target.value)}
                   autoComplete="off"
                   autoCapitalize="words"
-                  className="mt-1 w-full rounded-sm border-2 border-ink bg-paper px-4 py-4 text-[19px] outline-none focus:bg-ink/5"
+                  className="mt-1 w-full rounded-sm border-2 border-ink bg-paper px-4 py-4 text-[22px] outline-none focus:bg-ink/5"
                 />
               </label>
             ))}
 
             {state === "error" && (
-              <p className="text-center text-sm font-bold text-red-700">
+              <p className="text-center text-base font-bold text-red-700">
                 Something went wrong. Please try again.
               </p>
             )}
@@ -162,7 +162,7 @@ function CustomerPage() {
             <button
               type="submit"
               disabled={state === "saving"}
-              className="w-full rounded-sm bg-ink px-6 py-6 text-xl font-bold tracking-wide text-paper uppercase disabled:opacity-60"
+              className="w-full rounded-sm bg-ink px-6 py-6 text-2xl font-bold tracking-wide text-paper uppercase disabled:opacity-60"
             >
               {state === "saving" ? "Submitting…" : "Submit"}
             </button>
