@@ -142,11 +142,11 @@ function SubmissionsPage() {
             Unlock
           </button>
           <Link
-            to="/"
+            to="/staff"
             search={{}}
             className="mt-4 block text-center text-xs font-semibold underline"
           >
-            Back home
+            Back to Staff
           </Link>
         </form>
       </div>
@@ -162,11 +162,11 @@ function SubmissionsPage() {
           </h1>
           <div className="flex flex-wrap gap-2 text-xs font-bold uppercase">
             <Link
-              to="/"
+              to="/staff"
               search={{}}
               className="rounded-sm border border-paper/40 px-3 py-2 text-paper"
             >
-              Home
+              Staff Home
             </Link>
             <button
               type="button"
