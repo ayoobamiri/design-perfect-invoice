@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useCallback, useEffect, useState } from "react";
 import {
   deleteEntry,
   entriesToCsv,
@@ -62,7 +62,7 @@ function RecordsPage() {
   const [passcode, setPasscode] = useState("");
   const [accessError, setAccessError] = useState("");
 
-  async function importSubmissions() {
+  const importSubmissions = useCallback(async () => {
     const res = await list({});
     if (!res.unlocked) {
       setAccess("locked");
@@ -105,7 +105,7 @@ function RecordsPage() {
     });
     setEntries(getEntries(brand));
     setAccess("unlocked");
-  }
+  }, [brand, list]);
 
   useEffect(() => {
     setEntries(getEntries(brand));
@@ -122,7 +122,15 @@ function RecordsPage() {
     return () => {
       cancelled = true;
     };
-  }, [brand, list]);
+  }, [brand, importSubmissions]);
+
+  useEffect(() => {
+    if (access !== "unlocked") return;
+    const timer = window.setInterval(() => {
+      void importSubmissions();
+    }, 10000);
+    return () => window.clearInterval(timer);
+  }, [access, importSubmissions]);
   const [expanded, setExpanded] = useState<string | null>(null);
   function setExpandedSafe(v: string | null) {
     setExpanded(v);
@@ -252,7 +260,7 @@ function RecordsPage() {
         {access === "unlocked" && (
           <div className="mt-4 flex items-center justify-between gap-3 border-y border-paper/20 py-3">
             <p className="font-form-condensed text-sm font-bold uppercase">
-              Customer check-ins are connected to this sheet.
+              Customer check-ins are connected and update automatically.
             </p>
             <button
               type="button"
