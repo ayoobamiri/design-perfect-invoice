@@ -397,6 +397,7 @@ function InvoicePage() {
                 <Field label="City" className="border-r border-ink" />
                 <Field label="Zip" />
               </div>
+              <Field label="Email" name="email" className="border-b border-ink" />
               <div className="grid grid-cols-[110px_1fr_1fr] border-b border-ink">
                 <Field label="Written By" className="border-r border-ink" />
                 <Field label="Res. Phone" className="border-r border-ink" />

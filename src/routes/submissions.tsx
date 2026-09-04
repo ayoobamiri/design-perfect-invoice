@@ -9,6 +9,7 @@ import {
   type CustomerSubmission,
 } from "@/lib/shop-gate.functions";
 import { PENDING_CUSTOMER_KEY } from "@/lib/pending-customer";
+import { saveEntry } from "@/lib/invoice-store";
 
 export const Route = createFileRoute("/submissions")({
   head: () => ({
@@ -43,6 +44,7 @@ function SubmissionsPage() {
   const [rows, setRows] = useState<CustomerSubmission[]>([]);
   const [passcode, setPasscode] = useState("");
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
 
   const refresh = useCallback(async () => {
     const res = await list({});
@@ -66,8 +68,8 @@ function SubmissionsPage() {
     await refresh();
   }
 
-  function useForInvoice(row: CustomerSubmission, brand: "smog" | "auto") {
-    const data: Record<string, string> = {
+  function toInvoiceData(row: CustomerSubmission): Record<string, string> {
+    return {
       name: row.name,
       address: row.address,
       city: row.city,
@@ -79,9 +81,31 @@ function SubmissionsPage() {
       make: row.make,
       model: row.model,
       license_plate: row.license_plate,
+      email: row.email,
     };
+  }
+
+  function useForInvoice(row: CustomerSubmission, brand: "smog" | "auto") {
+    const data = toInvoiceData(row);
     sessionStorage.setItem(PENDING_CUSTOMER_KEY, JSON.stringify(data));
     navigate({ to: "/invoice", search: brand === "auto" ? { brand: "auto" } : {} });
+  }
+
+  function addToSheet(row: CustomerSubmission, brand: "smog" | "auto") {
+    const data = toInvoiceData(row);
+    data["date_in"] = new Date().toLocaleDateString();
+    data["invoice_id"] = brand === "auto" ? "PIA" : "PIS";
+    saveEntry(
+      {
+        id: crypto.randomUUID(),
+        savedAt: new Date().toISOString(),
+        data,
+      },
+      brand,
+    );
+    setNotice(
+      `${row.name || "Customer"} added to the ${brand === "auto" ? "Automotive" : "Smog"} sheet.`,
+    );
   }
 
   if (unlocked === null) {
@@ -165,6 +189,19 @@ function SubmissionsPage() {
           </div>
         </div>
 
+        {notice && (
+          <p className="mb-3 rounded-sm bg-paper px-4 py-2 text-sm font-bold text-ink">
+            {notice}{" "}
+            <Link to="/records" search={{}} className="underline">
+              Open Smog Sheet
+            </Link>{" "}
+            ·{" "}
+            <Link to="/records" search={{ brand: "auto" }} className="underline">
+              Open Automotive Sheet
+            </Link>
+          </p>
+        )}
+
         {rows.length === 0 ? (
           <div className="form-box bg-paper px-6 py-10 text-center text-ink">
             No customer submissions yet.
@@ -192,6 +229,7 @@ function SubmissionsPage() {
                   <Info label="Make" value={r.make} />
                   <Info label="Model" value={r.model} />
                   <Info label="License Plate" value={r.license_plate} />
+                  <Info label="Email" value={r.email} />
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-bold uppercase">
                   <button
@@ -207,6 +245,20 @@ function SubmissionsPage() {
                     className="rounded-sm bg-ink px-3 py-2 text-paper"
                   >
                     Use in Automotive Invoice
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => addToSheet(r, "smog")}
+                    className="rounded-sm border-2 border-ink px-3 py-2"
+                  >
+                    Add to Smog Sheet
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => addToSheet(r, "auto")}
+                    className="rounded-sm border-2 border-ink px-3 py-2"
+                  >
+                    Add to Automotive Sheet
                   </button>
                   <button
                     type="button"
