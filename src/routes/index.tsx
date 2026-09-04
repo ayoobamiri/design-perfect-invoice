@@ -3,17 +3,17 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Power Inn Smog & Automotive" },
+      { title: "Customer Check-In — Power Inn Smog & Automotive" },
       {
         name: "description",
         content:
-          "Staff portal and customer check-in for Power Inn Smog & Automotive, Sacramento.",
+          "Customer self check-in for Power Inn Smog & Automotive, 4095 Power Inn Rd, Sacramento. Choose Smog or Automotive service.",
       },
-      { property: "og:title", content: "Power Inn Smog & Automotive" },
+      { property: "og:title", content: "Customer Check-In — Power Inn Smog & Automotive" },
       {
         property: "og:description",
         content:
-          "Staff portal and customer check-in for Power Inn Smog & Automotive, Sacramento.",
+          "Customer self check-in for Power Inn Smog & Automotive, Sacramento. Choose Smog or Automotive service.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -58,8 +58,8 @@ function HomePage() {
             ),
           )}
 
-          <p className="font-form-condensed text-[11px] font-bold tracking-[0.45em] text-ink-soft uppercase">
-            Repair Order &amp; Smog Invoice System
+          <p className="font-form-condensed text-[13px] font-bold tracking-[0.45em] text-ink-soft uppercase">
+            Customer Self Check-In
           </p>
 
           <h1 className="font-form-display mt-4 text-[44px] leading-[0.95] tracking-tight sm:text-[64px]">
@@ -86,24 +86,27 @@ function HomePage() {
 
           <div className="mx-auto mt-9 grid max-w-2xl gap-3 sm:grid-cols-2">
             <Link
-              to="/staff"
-              search={{}}
-              className="group rounded-sm bg-ink px-6 py-4 text-left text-paper ring-1 ring-ink transition hover:-translate-y-0.5 hover:shadow-[0_10px_25px_-8px_rgba(0,0,0,0.5)]"
+              to="/customer"
+              search={{ brand: "smog" }}
+              className="group rounded-sm bg-ink px-6 py-5 text-left text-paper ring-1 ring-ink transition hover:-translate-y-0.5 hover:shadow-[0_10px_25px_-8px_rgba(0,0,0,0.5)]"
             >
-              <span className="font-form-condensed block text-base font-bold uppercase">
-                Staff only →
+              <span className="font-form-condensed block text-xl font-bold uppercase">
+                Customer Check-In — Smog →
               </span>
-              <span className="font-form-mono mt-1 block text-[11px] opacity-70">
-                Invoices, sheets, and records
+              <span className="font-form-mono mt-1 block text-[13px] opacity-70">
+                Touch here to begin
               </span>
             </Link>
             <Link
-              to="/checkin"
-              search={{}}
-              className="group rounded-sm border-2 border-ink px-6 py-4 text-left transition hover:-translate-y-0.5 hover:bg-ink hover:text-paper"
+              to="/customer"
+              search={{ brand: "auto" }}
+              className="group rounded-sm border-2 border-ink px-6 py-5 text-left transition hover:-translate-y-0.5 hover:bg-ink hover:text-paper"
             >
-              <span className="font-form-condensed block text-base font-bold uppercase">
-                Customer Check-In →
+              <span className="font-form-condensed block text-xl font-bold uppercase">
+                Customer Check-In — Automotive →
+              </span>
+              <span className="font-form-mono mt-1 block text-[13px] opacity-70">
+                Touch here to begin
               </span>
             </Link>
           </div>
