@@ -330,7 +330,7 @@ function RecordsPage() {
                         <button
                           onClick={(ev) => {
                             ev.stopPropagation();
-                            remove(e);
+                            setPendingDelete(e);
                           }}
                           className="rounded-sm border border-paper/40 px-2 py-0.5 font-form-condensed text-[10px] font-bold uppercase hover:bg-paper/10"
                         >
