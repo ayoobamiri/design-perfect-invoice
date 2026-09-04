@@ -68,7 +68,7 @@ function Cb({ label, name }: { label?: string; name?: string }) {
         type="checkbox"
         name={n}
         value="yes"
-        className="size-[10px] appearance-none border border-ink bg-paper checked:bg-ink"
+        className="size-[12px] appearance-none border border-ink bg-paper checked:bg-ink"
       />
       {label && <span className="form-label">{label}</span>}
     </label>
@@ -344,7 +344,7 @@ function InvoicePage() {
               value={invoiceId}
               onChange={(e) => setInvoiceId(e.target.value)}
               aria-label="Invoice ID"
-              className="font-form-mono w-24 bg-transparent text-[15px] font-bold outline-none focus:bg-ink/5"
+              className="font-form-mono w-24 bg-transparent text-[19px] font-bold outline-none focus:bg-ink/5"
             />
           </div>
         </div>
@@ -352,20 +352,20 @@ function InvoicePage() {
         {/* ===== HEADER ===== */}
         <div className="flex flex-col gap-3 lg:flex-row print:flex-row">
           <div className="text-center lg:w-[46%] lg:pt-2">
-            <h1 className="font-form-display text-[34px] leading-none tracking-tight sm:text-[40px]">
+            <h1 className="font-form-display text-[38px] leading-none tracking-tight sm:text-[44px]">
 
               {company.title}
             </h1>
             {company.subtitle && (
-              <p className="font-form-display mt-1 text-[15px] tracking-[0.28em]">
+              <p className="font-form-display mt-1 text-[19px] tracking-[0.28em]">
                 {company.subtitle}
               </p>
             )}
-            <p className="mt-1 text-[13px] font-semibold tracking-wide">
+            <p className="mt-1 text-[19px] font-semibold tracking-wide">
               4095 Power Inn Rd, Sacramento, CA 95826
             </p>
-            <p className="text-[12px] font-semibold">ARD 307549</p>
-            <p className="mt-0.5 text-[17px] font-bold">(916) 877-SMOG (7664)</p>
+            <p className="text-[14px] font-semibold">ARD 307549</p>
+            <p className="mt-0.5 text-[19px] font-bold">(916) 877-SMOG (7664)</p>
           </div>
 
           <div className="form-box grid flex-1 grid-cols-2 text-left">
@@ -411,7 +411,7 @@ function InvoicePage() {
               </div>
             </div>
 
-            <p className="mt-1.5 text-[9.5px] leading-snug font-semibold">
+            <p className="mt-1.5 text-[14px] leading-snug font-semibold">
               <span className="font-form-condensed font-bold">NOTE :</span> By law, you may
               choose another facility to perform any needed repairs or adjustments which smog
               check test indicates are necessary.
@@ -420,10 +420,10 @@ function InvoicePage() {
             {/* ORIGINAL ESTIMATE — three sections */}
             <div className="form-box mt-1 grid grid-cols-[auto_1fr]">
               <div className="bg-ink px-2 py-1 text-center">
-                <span className="font-form-condensed block text-[11px] font-bold text-paper uppercase">
+                <span className="font-form-condensed block text-[19px] font-bold text-paper uppercase">
                   Original
                 </span>
-                <span className="font-form-condensed block text-[11px] font-bold text-paper uppercase">
+                <span className="font-form-condensed block text-[19px] font-bold text-paper uppercase">
                   Estimate
                 </span>
               </div>
@@ -524,7 +524,7 @@ function InvoicePage() {
                           prev?.select();
                         }
                       }}
-                      className="form-input h-6 border border-ink text-center uppercase"
+                      className="form-input h-7 border border-ink text-center uppercase"
                       aria-label={`VIN character ${i + 1}`}
                     />
                   ))}
@@ -547,7 +547,7 @@ function InvoicePage() {
               <div className="grid grid-cols-[1fr_1.3fr_auto] border-b border-ink">
                 <div className="border-r border-ink px-1.5 py-1">
                   <span className="form-label">Certification Status</span>
-                  <p className="mt-0.5 text-[9px] leading-snug font-semibold">
+                  <p className="mt-0.5 text-[19px] leading-snug font-semibold">
                     C = Calif&nbsp;&nbsp;&nbsp;F = Federal
                     <br />R = B.A.R. Referee
                     <br />N = Unknown
@@ -585,7 +585,7 @@ function InvoicePage() {
                 </div>
               </div>
 
-              <p className="px-1.5 py-1 text-[8.5px] leading-snug font-semibold">
+              <p className="px-1.5 py-1 text-[19px] leading-snug font-semibold">
                 <span className="font-form-condensed font-bold">COST LIMIT DOES NOT APPLY</span>{" "}
                 if the required certified motor vehicle pollution control is modified,
                 disconnected or missing.
@@ -595,10 +595,10 @@ function InvoicePage() {
             {/* REVISED ESTIMATE — matches original form layout */}
             <div className="form-box mt-1 grid grid-cols-[auto_1fr]">
               <div className="flex flex-col justify-center bg-ink px-2 text-center">
-                <span className="font-form-condensed block text-[11px] font-bold text-paper uppercase">
+                <span className="font-form-condensed block text-[19px] font-bold text-paper uppercase">
                   Revised
                 </span>
-                <span className="font-form-condensed block text-[11px] font-bold text-paper uppercase">
+                <span className="font-form-condensed block text-[19px] font-bold text-paper uppercase">
                   Estimate
                 </span>
               </div>
@@ -645,16 +645,16 @@ function InvoicePage() {
           {EMISSIONS.map((t) => (
             <div key={t} className="flex flex-col items-center border-r border-ink">
               <span className="form-label py-0.5">{t}</span>
-              <input className="form-input h-5 text-center" name={`check_${slug(t)}`} aria-label={t} />
+              <input className="form-input h-6 text-center" name={`check_${slug(t)}`} aria-label={t} />
             </div>
           ))}
           <div className="flex flex-col items-center border-r border-ink">
             <span className="form-label py-0.5">EGR</span>
-            <input className="form-input h-5 text-center" name="egr_2" aria-label="EGR secondary" />
+            <input className="form-input h-6 text-center" name="egr_2" aria-label="EGR secondary" />
           </div>
           <div className="flex flex-col items-center border-r border-ink">
             <span className="form-label py-0.5">Tim.Spec</span>
-            <input className="form-input h-5 text-center" name="tim_spec" aria-label="Tim.Spec" />
+            <input className="form-input h-6 text-center" name="tim_spec" aria-label="Tim.Spec" />
           </div>
           <div className="flex items-center gap-1 border-r border-ink px-1.5">
             <span className="form-label">Timing</span>
@@ -686,7 +686,7 @@ function InvoicePage() {
                 <span className="form-label px-1 py-0.5 text-paper">Amount</span>
               </div>
               {partAmounts.map((amt, i) => (
-                <div key={i} className="grid h-[26px] grid-cols-[44px_40px_1fr_110px] border-t border-ink">
+                <div key={i} className="grid h-[28px] grid-cols-[44px_40px_1fr_110px] border-t border-ink">
                   <input className="form-input border-r border-ink text-center" name={`part_${i}_qty`} aria-label={`Part ${i + 1} qty`} />
                   <input className="form-input border-r border-ink text-center" name={`part_${i}_code`} aria-label={`Part ${i + 1} code`} />
                   <input className="form-input border-r border-ink" name={`part_${i}_desc`} aria-label={`Part ${i + 1} description`} />
@@ -702,7 +702,7 @@ function InvoicePage() {
                 </div>
               ))}
               <div className="grid grid-cols-[1fr_110px] border-t border-ink">
-                <div className="border-r border-ink p-1.5 text-[8px] leading-snug font-semibold">
+                <div className="border-r border-ink p-1.5 text-[12px] leading-snug font-semibold">
                   All parts are new unless otherwise noted. None of the parts used in this
                   facility is of origin manufacturer specifications unless otherwise requested
                   by customer.&nbsp;&nbsp;* CODE:&nbsp; N = New&nbsp;&nbsp; U = Used&nbsp;&nbsp; R = Rebuilt
@@ -716,7 +716,7 @@ function InvoicePage() {
               </div>
             </div>
 
-            <p className="mt-1.5 text-[8.5px] leading-snug font-semibold italic">
+            <p className="mt-1.5 text-[19px] leading-snug font-semibold italic">
               I hereby authorize the above smog test to be done according to current smog test
               laws. You and your employees may operate above listed vehicle for purposes of
               testing, inspection, or delivery at my risk. An express Mechanic&apos;s Lien is
@@ -734,7 +734,7 @@ function InvoicePage() {
                 name="customer_signature"
                 aria-label="Customer signature"
                 placeholder="Type full name to sign"
-                className="w-full flex-1 border-b border-ink bg-transparent pb-0.5 text-[20px] leading-tight text-ink outline-none placeholder:text-[11px] placeholder:font-normal placeholder:text-ink/35"
+                className="w-full flex-1 border-b border-ink bg-transparent pb-0.5 text-[24px] leading-tight text-ink outline-none placeholder:text-[19px] placeholder:font-normal placeholder:text-ink/35"
                 style={{ fontFamily: "var(--font-hand)" }}
               />
             </div>
@@ -750,7 +750,7 @@ function InvoicePage() {
                 <span className="form-label px-1 py-0.5 text-paper">Amount</span>
               </div>
               {laborAmounts.map((amt, i) => (
-                <div key={i} className="grid h-[26px] grid-cols-[1fr_110px] border-t border-ink">
+                <div key={i} className="grid h-[28px] grid-cols-[1fr_110px] border-t border-ink">
                   <input className="form-input border-r border-ink" name={`labor_${i}_desc`} aria-label={`Labor ${i + 1}`} />
                   <input
                     className="form-input text-right"
@@ -767,7 +767,7 @@ function InvoicePage() {
 
             <div className="mt-2 flex gap-2">
               <div className="flex items-center bg-ink px-4 text-center">
-                <span className="font-form-condensed text-[13px] leading-tight font-bold text-paper uppercase">
+                <span className="font-form-condensed text-[19px] leading-tight font-bold text-paper uppercase">
                   IF THE TEST FAILS
                   <br />
                   OR IS ABORTED
@@ -831,7 +831,7 @@ function InvoicePage() {
                   />
                 </div>
                 <div className="grid grid-cols-[1fr_100px]">
-                  <span className="form-label flex items-center bg-ink px-1.5 py-1.5 text-[11px] text-paper">
+                  <span className="form-label flex items-center bg-ink px-1.5 py-1.5 text-[19px] text-paper">
                     Total
                   </span>
                   <Computed name="invoice_total" value={money(grandTotal)} />
@@ -843,7 +843,7 @@ function InvoicePage() {
 
         {/* ===== FOOTER ===== */}
         <div className="mt-3 grid gap-3 border-t-2 border-ink pt-2 lg:grid-cols-2 print:grid-cols-2">
-          <p className="text-[8.5px] leading-snug font-semibold italic">
+          <p className="text-[19px] leading-snug font-semibold italic">
             Any warranties on the products sold hereby are those made by manufacturer. The
             seller (above named dealership) hereby expressly disclaims all warranties, either
             express or implied warranty of merchantability or fitness for a particular purpose,

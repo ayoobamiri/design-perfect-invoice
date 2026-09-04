@@ -71,7 +71,7 @@ function CustomerPage() {
     FIELDS.forEach((f) => {
       row[f.name] = (values[f.name] ?? "").trim().slice(0, 200);
     });
-    const { error } = await supabase.from("customer_submissions").insert(row);
+    const { error } = await supabase.from("customer_submissions").insert(row as any);
     if (error) {
       console.error(error);
       setState("error");
