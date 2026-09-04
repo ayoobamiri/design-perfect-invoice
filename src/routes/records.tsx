@@ -165,13 +165,13 @@ function RecordsPage() {
     URL.revokeObjectURL(url);
   };
 
-  const remove = (entry: InvoiceEntry) => {
-    const label = `${entry.data["invoice_id"] ?? "this invoice"}${
-      entry.data["name"] ? ` — ${entry.data["name"]}` : ""
-    }`;
-    if (!window.confirm(`Delete ${label}?\n\nThis cannot be undone.`)) return;
-    deleteEntry(entry.id, brand);
+  const [pendingDelete, setPendingDelete] = useState<InvoiceEntry | null>(null);
+
+  const confirmRemove = () => {
+    if (!pendingDelete) return;
+    deleteEntry(pendingDelete.id, brand);
     setEntries(getEntries(brand));
+    setPendingDelete(null);
   };
 
   return (
