@@ -59,7 +59,7 @@ function CheckInPage() {
             ),
           )}
 
-          <p className="font-form-condensed text-[11px] font-bold tracking-[0.45em] text-ink-soft uppercase">
+          <p className="font-form-condensed text-[13px] font-bold tracking-[0.45em] text-ink-soft uppercase">
             Customer Self Check-In
           </p>
 
@@ -91,10 +91,10 @@ function CheckInPage() {
               search={{ brand: "smog" }}
               className="group rounded-sm bg-ink px-6 py-4 text-left text-paper ring-1 ring-ink transition hover:-translate-y-0.5 hover:shadow-[0_10px_25px_-8px_rgba(0,0,0,0.5)]"
             >
-              <span className="font-form-condensed block text-base font-bold uppercase">
+              <span className="font-form-condensed block text-lg font-bold uppercase">
                 Customer Check-In — Smog →
               </span>
-              <span className="font-form-mono mt-1 block text-[11px] opacity-70">
+              <span className="font-form-mono mt-1 block text-[13px] opacity-70">
                 Touchscreen form for smog customers
               </span>
             </Link>
@@ -103,10 +103,10 @@ function CheckInPage() {
               search={{ brand: "auto" }}
               className="group rounded-sm border-2 border-ink px-6 py-4 text-left transition hover:-translate-y-0.5 hover:bg-ink hover:text-paper"
             >
-              <span className="font-form-condensed block text-base font-bold uppercase">
+              <span className="font-form-condensed block text-lg font-bold uppercase">
                 Customer Check-In — Automotive →
               </span>
-              <span className="font-form-mono mt-1 block text-[11px] opacity-70">
+              <span className="font-form-mono mt-1 block text-[13px] opacity-70">
                 Touchscreen form for automotive customers
               </span>
             </Link>
@@ -115,7 +115,7 @@ function CheckInPage() {
           <Link
             to="/"
             search={{}}
-            className="mt-8 inline-block font-form-mono text-[11px] font-semibold text-ink-soft underline"
+            className="mt-8 inline-block font-form-mono text-sm font-semibold text-ink-soft underline"
           >
             Back to home
           </Link>
