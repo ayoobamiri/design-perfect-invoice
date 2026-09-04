@@ -17,6 +17,7 @@ export type CustomerSubmission = {
   model: string;
   license_plate: string;
   email: string;
+  brand: string;
 };
 
 type GateSession = { unlocked?: boolean };
@@ -68,7 +69,7 @@ export const listSubmissions = createServerFn({ method: "GET" }).handler(async (
   const { data, error } = await supabaseAdmin
     .from("customer_submissions")
     .select(
-      "id, created_at, name, address, city, zip, written_by, res_phone, bus_phone, year, make, model, license_plate, email",
+      "id, created_at, name, address, city, zip, written_by, res_phone, bus_phone, year, make, model, license_plate, email, brand",
     )
     .order("created_at", { ascending: false })
     .limit(100);
