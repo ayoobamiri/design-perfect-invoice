@@ -141,6 +141,18 @@
   }
 }
 
+/* Larger text inside the totals table */
+.totals-table .form-label {
+  font-size: 15px;
+  padding: 6px 8px;
+}
+.totals-table .form-input,
+.totals-table input {
+  font-size: 17px;
+  font-weight: 700;
+  padding: 4px 8px;
+}
+
 @utility form-box {
   border: 1.5px solid var(--color-ink);
   background: var(--color-paper);
