@@ -17,6 +17,7 @@ export type Database = {
       customer_submissions: {
         Row: {
           address: string
+          brand: string
           bus_phone: string
           city: string
           created_at: string
@@ -34,6 +35,7 @@ export type Database = {
         }
         Insert: {
           address?: string
+          brand?: string
           bus_phone?: string
           city?: string
           created_at?: string
@@ -51,6 +53,7 @@ export type Database = {
         }
         Update: {
           address?: string
+          brand?: string
           bus_phone?: string
           city?: string
           created_at?: string
