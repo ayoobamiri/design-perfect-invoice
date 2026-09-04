@@ -702,7 +702,7 @@ function InvoicePage() {
                 </div>
               ))}
               <div className="grid grid-cols-[1fr_110px] border-t border-ink">
-                <div className="border-r border-ink p-1.5 text-[10px] leading-snug font-semibold">
+                <div className="border-r border-ink p-1.5 text-[12px] leading-snug font-semibold">
                   All parts are new unless otherwise noted. None of the parts used in this
                   facility is of origin manufacturer specifications unless otherwise requested
                   by customer.&nbsp;&nbsp;* CODE:&nbsp; N = New&nbsp;&nbsp; U = Used&nbsp;&nbsp; R = Rebuilt
