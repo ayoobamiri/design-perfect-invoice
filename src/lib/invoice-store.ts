@@ -66,10 +66,32 @@ export function updateEntry(id: string, data: Record<string, string>, brand: Bra
   localStorage.setItem(KEYS[brand].entries, JSON.stringify(all));
 }
 
+const DELETED_KEY: Record<Brand, string> = {
+  smog: "power-inn-smog-deleted-submissions",
+  auto: "power-inn-auto-deleted-submissions",
+};
+
+export function getDeletedSubmissionIds(brand: Brand = "smog"): Set<string> {
+  try {
+    const raw = localStorage.getItem(DELETED_KEY[brand]);
+    return new Set(raw ? (JSON.parse(raw) as string[]) : []);
+  } catch {
+    return new Set();
+  }
+}
+
 export function deleteEntry(id: string, brand: Brand = "smog") {
+  const entries = getEntries(brand);
+  const entry = entries.find((e) => e.id === id);
+  const submissionId = entry?.data["submission_id"];
+  if (submissionId) {
+    const deleted = getDeletedSubmissionIds(brand);
+    deleted.add(submissionId);
+    localStorage.setItem(DELETED_KEY[brand], JSON.stringify([...deleted]));
+  }
   localStorage.setItem(
     KEYS[brand].entries,
-    JSON.stringify(getEntries(brand).filter((e) => e.id !== id)),
+    JSON.stringify(entries.filter((e) => e.id !== id)),
   );
 }
 
