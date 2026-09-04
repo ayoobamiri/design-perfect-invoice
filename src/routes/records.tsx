@@ -364,6 +364,47 @@ function RecordsPage() {
           </div>
         )}
       </div>
+
+      {pendingDelete && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/70 px-4"
+          onClick={() => setPendingDelete(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-sm border border-paper/40 bg-background p-6 text-paper"
+            onClick={(ev) => ev.stopPropagation()}
+          >
+            <h2
+              className="text-lg font-bold tracking-tight"
+              style={{ fontFamily: "var(--font-form-display)" }}
+            >
+              Do you want to delete this invoice?
+            </h2>
+            <p className="mt-2 font-form-mono text-sm text-paper/80">
+              {pendingDelete.data["invoice_id"] || "Invoice"}
+              {pendingDelete.data["name"] ? ` — ${pendingDelete.data["name"]}` : ""}
+              <br />
+              This cannot be undone.
+            </p>
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setPendingDelete(null)}
+                className="rounded-sm border border-paper/60 px-6 py-2 font-form-condensed text-sm font-bold uppercase hover:bg-paper/10"
+              >
+                No
+              </button>
+              <button
+                type="button"
+                onClick={confirmRemove}
+                className="rounded-sm bg-paper px-6 py-2 font-form-condensed text-sm font-bold text-ink uppercase hover:opacity-90"
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
