@@ -153,7 +153,7 @@
 @utility form-label {
   font-family: var(--font-form-condensed);
   font-weight: 700;
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--color-ink);
@@ -164,7 +164,7 @@
   background: transparent;
   outline: none;
   font-family: var(--font-form-mono);
-  font-size: 11px;
+  font-size: 13px;
   color: var(--color-ink);
   &:focus {
     background: color-mix(in oklab, var(--color-ink) 5%, transparent);
