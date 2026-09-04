@@ -4,6 +4,7 @@ import { Fragment, useCallback, useEffect, useState } from "react";
 import {
   deleteEntry,
   entriesToCsv,
+  getDeletedSubmissionIds,
   getEntries,
   saveEntry,
   type InvoiceEntry,
@@ -73,9 +74,11 @@ function RecordsPage() {
         .map((entry) => entry.data["submission_id"])
         .filter(Boolean) as string[],
     );
+    const deleted = getDeletedSubmissionIds(brand);
     const incoming = res.submissions
       .filter((submission) => (submission.brand === "auto" ? "auto" : "smog") === brand)
       .filter((submission) => !existing.has(submission.id))
+      .filter((submission) => !deleted.has(submission.id))
       .reverse();
     incoming.forEach((submission) => {
       saveEntry(
