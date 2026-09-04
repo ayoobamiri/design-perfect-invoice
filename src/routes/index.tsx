@@ -105,9 +105,6 @@ function HomePage() {
               <span className="font-form-condensed block text-base font-bold uppercase">
                 Customer Check-In →
               </span>
-              <span className="font-form-mono mt-1 block text-[11px] opacity-70">
-                iPad form for customers
-              </span>
             </Link>
           </div>
         </div>

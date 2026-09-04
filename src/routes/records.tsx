@@ -4,10 +4,12 @@ import {
   deleteEntry,
   entriesToCsv,
   getEntries,
+  saveEntry,
   type InvoiceEntry,
   BRANDS,
   toBrand,
 } from "@/lib/invoice-store";
+import { listSubmissions } from "@/lib/shop-gate.functions";
 
 export const Route = createFileRoute("/records")({
   validateSearch: (s: Record<string, unknown>): { brand?: string } => ({
@@ -55,6 +57,56 @@ function RecordsPage() {
   useEffect(() => {
     setEntries(getEntries(brand));
     setExpandedSafe(null);
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await listSubmissions();
+        if (cancelled || !res.unlocked) return;
+        const existing = new Set(
+          getEntries(brand)
+            .map((e) => e.data["submission_id"])
+            .filter(Boolean) as string[],
+        );
+        const incoming = res.submissions
+          .filter((s) => (s.brand === "auto" ? "auto" : "smog") === brand)
+          .filter((s) => !existing.has(s.id))
+          .reverse();
+        if (incoming.length === 0) return;
+        incoming.forEach((s) => {
+          saveEntry(
+            {
+              id: crypto.randomUUID(),
+              savedAt: s.created_at,
+              data: {
+                submission_id: s.id,
+                invoice_id: BRANDS[brand].prefix,
+                date_in: new Date(s.created_at).toLocaleDateString(),
+                name: s.name,
+                address: s.address,
+                city: s.city,
+                zip: s.zip,
+                written_by: s.written_by,
+                res_phone: s.res_phone,
+                bus_phone: s.bus_phone,
+                year: s.year,
+                make: s.make,
+                model: s.model,
+                license_plate: s.license_plate,
+                email: s.email,
+              },
+            },
+            brand,
+          );
+        });
+        setEntries(getEntries(brand));
+      } catch {
+        /* not unlocked / offline — sheet still works */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [brand]);
   const [expanded, setExpanded] = useState<string | null>(null);
   function setExpandedSafe(v: string | null) {

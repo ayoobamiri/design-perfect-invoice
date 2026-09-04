@@ -67,7 +67,7 @@ function CustomerPage() {
       return;
     }
     setState("saving");
-    const row: Record<string, string> = {};
+    const row: Record<string, string> = { brand: brand ?? "smog" };
     FIELDS.forEach((f) => {
       row[f.name] = (values[f.name] ?? "").trim().slice(0, 200);
     });

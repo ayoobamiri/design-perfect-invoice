@@ -15,6 +15,13 @@
       "when": 1788407766382,
       "tag": "0001_add_email_to_customer_submissions",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1788484670815,
+      "tag": "0002_add_brand_to_customer_submissions",
+      "breakpoints": true
     }
   ]
 }
