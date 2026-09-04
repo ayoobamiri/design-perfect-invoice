@@ -68,7 +68,7 @@ function StaffPage() {
           )}
 
           <p className="font-form-condensed text-[11px] font-bold tracking-[0.45em] text-ink-soft uppercase">
-            Repair Order &amp; Smog Invoice System
+            Staff Only · Repair Order &amp; Smog Invoice System
           </p>
 
           <h1 className="font-form-display mt-4 text-[44px] leading-[0.95] tracking-tight sm:text-[64px]">
@@ -160,13 +160,9 @@ function StaffPage() {
             </Link>
           </div>
 
-          <Link
-            to="/"
-            search={{}}
-            className="mt-8 inline-block font-form-mono text-[11px] font-semibold text-ink-soft underline"
-          >
-            ← Back to home
-          </Link>
+          <p className="mt-8 font-form-mono text-[11px] text-ink-soft">
+            Private staff page — keep this address on the shop computer only.
+          </p>
 
           <p className="mt-4 font-form-mono text-[11px] text-ink-soft">
             Invoice numbers are entered manually —{" "}

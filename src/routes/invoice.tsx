@@ -316,11 +316,11 @@ function InvoicePage() {
             View Sheet
           </Link>
           <Link
-            to="/"
+            to="/staff"
             search={{}}
             className="rounded-sm border border-paper/60 px-4 py-2 font-form-condensed text-xs font-bold text-paper uppercase hover:bg-paper/10"
           >
-            Home
+            Staff Home
           </Link>
         </div>
       </div>
