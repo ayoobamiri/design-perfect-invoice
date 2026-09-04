@@ -777,7 +777,7 @@ function InvoicePage() {
                   THE TEST FEE
                 </span>
               </div>
-              <div className="form-box flex-1">
+              <div className="form-box totals-table flex-1">
                 <div className="grid grid-cols-[1fr_100px] border-b border-ink">
                   <span className="form-label border-r border-ink px-1.5 py-1">Total Labor</span>
                   <Computed name="total_labor" value={money(totalLabor)} />
