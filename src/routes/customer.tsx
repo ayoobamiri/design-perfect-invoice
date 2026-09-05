@@ -102,9 +102,9 @@ function CustomerPage() {
           <Link
             to="/"
             search={{}}
-            className="mt-4 block text-center font-form-mono text-sm font-semibold text-ink-soft underline"
+            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-sm border-2 border-ink bg-paper px-5 py-5 font-form-condensed text-xl font-bold uppercase tracking-wide text-ink transition active:bg-ink/10"
           >
-            Back to home
+            <span aria-hidden>←</span> Back to home
           </Link>
         </div>
       </div>
