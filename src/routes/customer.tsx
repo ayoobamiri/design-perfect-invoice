@@ -118,9 +118,9 @@ function CustomerPage() {
           <div className="mb-4">
             <Link
               to="/checkin"
-              className="font-form-mono text-sm font-semibold text-ink-soft underline"
+              className="inline-flex items-center gap-2 rounded-sm border-2 border-ink bg-paper px-5 py-3 font-form-condensed text-lg font-bold uppercase tracking-wide text-ink transition active:bg-ink/10"
             >
-              ← Back
+              <span aria-hidden>←</span> Back
             </Link>
           </div>
           <header className="text-center">
