@@ -125,13 +125,13 @@ function CustomerPage() {
           </div>
           <header className="text-center">
             <h1 className="font-form-display text-[34px] leading-none sm:text-[42px]">
-              POWER INN SMOG &amp; AUTOMOTIVE
+              {brand === "auto" ? "POWER INN AUTOMOTIVE" : "POWER INN SMOG"}
             </h1>
             <p className="mt-2 text-base font-semibold">
               4095 Power Inn Rd, Sacramento, CA 95826
             </p>
             <p className="font-form-condensed mt-4 text-base font-bold tracking-[0.3em] uppercase">
-              Customer Check-In — {label}
+              Customer Check-In
             </p>
           </header>
 
