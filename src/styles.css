@@ -141,27 +141,32 @@
   }
 }
 
-/* Screen sizes: keep the entry form compact */
+/* Larger text inside the totals table */
 .totals-table .form-label {
-  padding: 4px 6px;
+  font-size: 15px;
+  padding: 6px 8px;
 }
 .totals-table .form-input,
 .totals-table input {
+  font-size: 17px;
   font-weight: 700;
-  padding: 2px 6px;
+  padding: 4px 8px;
 }
 
-/* Large fonts only in the saved PDF / print output */
+/* Larger text inside section 1 customer/estimate table */
+.section-1-table .field-wrap {
+  padding: 0.25rem 0.5rem 0.25rem;
+}
+.section-1-table .form-label {
+  font-size: 15px;
+}
+.section-1-table .form-input {
+  font-size: 17px;
+}
+.section-1-table p.text-\[16px\] {
+  font-size: 17px;
+}
 @media print {
-  .totals-table .form-label {
-    font-size: 16px;
-    padding: 6px 8px;
-  }
-  .totals-table .form-input,
-  .totals-table input {
-    font-size: 18px;
-    padding: 4px 8px;
-  }
   .section-1-table .form-label {
     font-size: 16px;
   }
