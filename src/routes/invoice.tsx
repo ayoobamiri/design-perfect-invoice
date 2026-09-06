@@ -217,10 +217,13 @@ function InvoicePage() {
       if (pending) {
         sessionStorage.removeItem(PENDING_CUSTOMER_KEY);
         try {
-          merged = { ...merged, ...(JSON.parse(pending) as Record<string, string>) };
+          pendingCustomerRef.current = JSON.parse(pending) as Record<string, string>;
         } catch {
           /* ignore malformed pending customer data */
         }
+      }
+      if (pendingCustomerRef.current) {
+        merged = { ...merged, ...pendingCustomerRef.current };
       }
     }
     applyData(merged);
