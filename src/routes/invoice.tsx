@@ -292,7 +292,7 @@ function InvoicePage() {
     <div className="min-h-screen bg-background px-2 py-6 sm:px-4">
       {/* action bar (not printed) */}
       <div className="no-print mx-auto mb-3 flex w-full max-w-[1100px] flex-wrap items-center justify-between gap-2">
-        <span className="font-form-condensed text-sm font-bold tracking-wide text-primary-foreground uppercase">
+        <span className="font-form-condensed text-lg font-bold tracking-wide text-primary-foreground uppercase">
           {company.label} — Digital Invoice
           {status && (
             <span className="ml-3 font-normal normal-case opacity-70">{status}</span>
@@ -349,7 +349,7 @@ function InvoicePage() {
               value={invoiceId}
               onChange={(e) => setInvoiceId(e.target.value)}
               aria-label="Invoice ID"
-              className="font-form-mono w-24 bg-transparent text-[19px] font-bold outline-none focus:bg-ink/5"
+              className="font-form-mono w-24 bg-transparent text-[21px] font-bold outline-none focus:bg-ink/5"
             />
           </div>
         </div>
@@ -357,20 +357,20 @@ function InvoicePage() {
         {/* ===== HEADER ===== */}
         <div className="flex flex-col gap-3 lg:flex-row print:flex-row">
           <div className="text-center lg:w-[46%] lg:pt-2">
-            <h1 className="font-form-display text-[38px] leading-none tracking-tight sm:text-[44px]">
+            <h1 className="font-form-display text-[40px] leading-none tracking-tight sm:text-[46px]">
 
               {company.title}
             </h1>
             {company.subtitle && (
-              <p className="font-form-display mt-1 text-[19px] tracking-[0.28em]">
+              <p className="font-form-display mt-1 text-[21px] tracking-[0.28em]">
                 {company.subtitle}
               </p>
             )}
-            <p className="mt-1 text-[19px] font-semibold tracking-wide">
+            <p className="mt-1 text-[21px] font-semibold tracking-wide">
               4095 Power Inn Rd, Sacramento, CA 95826
             </p>
-            <p className="text-[14px] font-semibold">ARD 307549</p>
-            <p className="mt-0.5 text-[19px] font-bold">(916) 877-SMOG (7664)</p>
+            <p className="text-[16px] font-semibold">ARD 307549</p>
+            <p className="mt-0.5 text-[21px] font-bold">(916) 877-SMOG (7664)</p>
           </div>
 
           <div className="form-box grid flex-1 grid-cols-2 text-left">
@@ -416,7 +416,7 @@ function InvoicePage() {
               </div>
             </div>
 
-            <p className="mt-1.5 text-[14px] leading-snug font-semibold">
+            <p className="mt-1.5 text-[16px] leading-snug font-semibold">
               <span className="font-form-condensed font-bold">NOTE :</span> By law, you may
               choose another facility to perform any needed repairs or adjustments which smog
               check test indicates are necessary.
@@ -425,17 +425,17 @@ function InvoicePage() {
             {/* ORIGINAL ESTIMATE — three sections */}
             <div className="form-box mt-1 grid grid-cols-[auto_1fr]">
               <div className="bg-ink px-2 py-1 text-center">
-                <span className="font-form-condensed block text-[19px] font-bold text-paper uppercase">
+                <span className="font-form-condensed block text-[21px] font-bold text-paper uppercase">
                   Original
                 </span>
-                <span className="font-form-condensed block text-[19px] font-bold text-paper uppercase">
+                <span className="font-form-condensed block text-[21px] font-bold text-paper uppercase">
                   Estimate
                 </span>
               </div>
               <div className="flex items-center justify-between gap-2 px-3 py-1">
                 <div className="flex flex-1 flex-col items-center">
                   <div className="flex w-full items-baseline gap-1">
-                    <span className="font-form-mono text-sm">$</span>
+                    <span className="font-form-mono text-lg">$</span>
                     <input
                       className="form-input border-b border-ink text-right"
                       name="est_test_fee"
@@ -446,10 +446,10 @@ function InvoicePage() {
                   </div>
                   <span className="form-label mt-0.5">Inspection &amp; Test Fee</span>
                 </div>
-                <span className="text-base font-bold">+</span>
+                <span className="text-lg font-bold">+</span>
                 <div className="flex flex-1 flex-col items-center">
                   <div className="flex w-full items-baseline gap-1">
-                    <span className="font-form-mono text-sm">$</span>
+                    <span className="font-form-mono text-lg">$</span>
                     <input
                       className="form-input border-b border-ink text-right"
                       name="est_cert_fee"
@@ -460,10 +460,10 @@ function InvoicePage() {
                   </div>
                   <span className="form-label mt-0.5">Cert. Fee</span>
                 </div>
-                <span className="text-base font-bold">=</span>
+                <span className="text-lg font-bold">=</span>
                 <div className="flex flex-1 flex-col items-center">
                   <div className="flex w-full items-baseline gap-1">
-                    <span className="font-form-mono text-sm">$</span>
+                    <span className="font-form-mono text-lg">$</span>
                     <Computed name="est_total" value={money(estTotal)} />
                   </div>
                   <span className="form-label mt-0.5">Estimate Total</span>
@@ -552,7 +552,7 @@ function InvoicePage() {
               <div className="grid grid-cols-[1fr_1.3fr_auto] border-b border-ink">
                 <div className="border-r border-ink px-1.5 py-1">
                   <span className="form-label">Certification Status</span>
-                  <p className="mt-0.5 text-[19px] leading-snug font-semibold">
+                  <p className="mt-0.5 text-[21px] leading-snug font-semibold">
                     C = Calif&nbsp;&nbsp;&nbsp;F = Federal
                     <br />R = B.A.R. Referee
                     <br />N = Unknown
@@ -590,7 +590,7 @@ function InvoicePage() {
                 </div>
               </div>
 
-              <p className="px-1.5 py-1 text-[19px] leading-snug font-semibold">
+              <p className="px-1.5 py-1 text-[21px] leading-snug font-semibold">
                 <span className="font-form-condensed font-bold">COST LIMIT DOES NOT APPLY</span>{" "}
                 if the required certified motor vehicle pollution control is modified,
                 disconnected or missing.
@@ -600,10 +600,10 @@ function InvoicePage() {
             {/* REVISED ESTIMATE — matches original form layout */}
             <div className="form-box mt-1 grid grid-cols-[auto_1fr]">
               <div className="flex flex-col justify-center bg-ink px-2 text-center">
-                <span className="font-form-condensed block text-[19px] font-bold text-paper uppercase">
+                <span className="font-form-condensed block text-[21px] font-bold text-paper uppercase">
                   Revised
                 </span>
-                <span className="font-form-condensed block text-[19px] font-bold text-paper uppercase">
+                <span className="font-form-condensed block text-[21px] font-bold text-paper uppercase">
                   Estimate
                 </span>
               </div>
@@ -611,7 +611,7 @@ function InvoicePage() {
                 {/* row 1 */}
                 <div className="grid grid-cols-[110px_1fr_90px_1fr] border-b border-ink">
                   <div className="flex items-end gap-1 border-r border-ink px-1.5 pb-1">
-                    <span className="font-form-mono text-sm">$</span>
+                    <span className="font-form-mono text-lg">$</span>
                     <input className="form-input text-right" name="rev_amount" aria-label="Revised estimate amount" />
                   </div>
                   <Field label="Additional Cost" name="rev_additional_cost" className="border-r border-ink" />
@@ -627,7 +627,7 @@ function InvoicePage() {
                 {/* row 2 */}
                 <div className="grid grid-cols-[110px_1fr_90px_1fr]">
                   <div className="flex items-end gap-1 border-r border-ink px-1.5 pb-1">
-                    <span className="font-form-mono text-sm">$</span>
+                    <span className="font-form-mono text-lg">$</span>
                     <input className="form-input text-right" name="rev_total" aria-label="Revised total" />
                   </div>
                   <Field label="Contacted By" name="rev_contacted_by" className="border-r border-ink" />
@@ -707,7 +707,7 @@ function InvoicePage() {
                 </div>
               ))}
               <div className="grid grid-cols-[1fr_110px] border-t border-ink">
-                <div className="border-r border-ink p-1.5 text-[12px] leading-snug font-semibold">
+                <div className="border-r border-ink p-1.5 text-[14px] leading-snug font-semibold">
                   All parts are new unless otherwise noted. None of the parts used in this
                   facility is of origin manufacturer specifications unless otherwise requested
                   by customer.&nbsp;&nbsp;* CODE:&nbsp; N = New&nbsp;&nbsp; U = Used&nbsp;&nbsp; R = Rebuilt
@@ -721,7 +721,7 @@ function InvoicePage() {
               </div>
             </div>
 
-            <p className="mt-1.5 text-[19px] leading-snug font-semibold italic">
+            <p className="mt-1.5 text-[21px] leading-snug font-semibold italic">
               I hereby authorize the above smog test to be done according to current smog test
               laws. You and your employees may operate above listed vehicle for purposes of
               testing, inspection, or delivery at my risk. An express Mechanic&apos;s Lien is
@@ -734,12 +734,12 @@ function InvoicePage() {
             {/* signature — typed, handwriting font */}
             <div className="form-box mt-1 flex items-end gap-2 px-2 pt-1 pb-1.5">
               <span className="form-label">Cust. Sign</span>
-              <span className="font-form-mono text-sm font-bold">X</span>
+              <span className="font-form-mono text-lg font-bold">X</span>
               <input
                 name="customer_signature"
                 aria-label="Customer signature"
                 placeholder="Type full name to sign"
-                className="w-full flex-1 border-b border-ink bg-transparent pb-0.5 text-[24px] leading-tight text-ink outline-none placeholder:text-[19px] placeholder:font-normal placeholder:text-ink/35"
+                className="w-full flex-1 border-b border-ink bg-transparent pb-0.5 text-[26px] leading-tight text-ink outline-none placeholder:text-[21px] placeholder:font-normal placeholder:text-ink/35"
                 style={{ fontFamily: "var(--font-hand)" }}
               />
             </div>
@@ -772,7 +772,7 @@ function InvoicePage() {
 
             <div className="mt-2 flex gap-2">
               <div className="flex items-center bg-ink px-4 text-center">
-                <span className="font-form-condensed text-[19px] leading-tight font-bold text-paper uppercase">
+                <span className="font-form-condensed text-[21px] leading-tight font-bold text-paper uppercase">
                   IF THE TEST FAILS
                   <br />
                   OR IS ABORTED
@@ -836,7 +836,7 @@ function InvoicePage() {
                   />
                 </div>
                 <div className="grid grid-cols-[1fr_100px]">
-                  <span className="form-label flex items-center bg-ink px-1.5 py-1.5 text-[19px] text-paper">
+                  <span className="form-label flex items-center bg-ink px-1.5 py-1.5 text-[21px] text-paper">
                     Total
                   </span>
                   <Computed name="invoice_total" value={money(grandTotal)} />
@@ -848,7 +848,7 @@ function InvoicePage() {
 
         {/* ===== FOOTER ===== */}
         <div className="mt-3 grid gap-3 border-t-2 border-ink pt-2 lg:grid-cols-2 print:grid-cols-2">
-          <p className="text-[19px] leading-snug font-semibold italic">
+          <p className="text-[21px] leading-snug font-semibold italic">
             Any warranties on the products sold hereby are those made by manufacturer. The
             seller (above named dealership) hereby expressly disclaims all warranties, either
             express or implied warranty of merchantability or fitness for a particular purpose,
