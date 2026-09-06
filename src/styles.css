@@ -208,6 +208,13 @@
     size: letter landscape;
     margin: 3mm;
   }
+  /* Large readable fonts in the saved PDF only (screen form stays compact) */
+  .invoice-sheet .form-label {
+    font-size: 15px;
+  }
+  .invoice-sheet .form-input {
+    font-size: 17px;
+  }
   .invoice-sheet {
     max-width: none !important;
     width: 100% !important;
