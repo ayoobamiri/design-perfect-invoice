@@ -85,10 +85,13 @@ function SubmissionsPage() {
     };
   }
 
-  function useForInvoice(row: CustomerSubmission, brand: "smog" | "auto") {
+  function sendToInvoice(row: CustomerSubmission, brand: "smog" | "auto") {
     const data = toInvoiceData(row);
     sessionStorage.setItem(PENDING_CUSTOMER_KEY, JSON.stringify(data));
-    navigate({ to: "/invoice", search: brand === "auto" ? { brand: "auto" } : {} });
+    navigate({
+      to: "/invoice",
+      search: brand === "auto" ? { brand: "auto", new: "1" } : { new: "1" },
+    });
   }
 
   function addToSheet(row: CustomerSubmission, brand: "smog" | "auto") {
