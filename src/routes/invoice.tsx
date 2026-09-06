@@ -19,10 +19,11 @@ import {
 export const Route = createFileRoute("/invoice")({
   validateSearch: (
     s: Record<string, unknown>,
-  ): { edit?: string; print?: string; brand?: string } => ({
+  ): { edit?: string; print?: string; brand?: string; new?: string } => ({
     ...(typeof s["edit"] === "string" ? { edit: s["edit"] } : {}),
     ...(typeof s["print"] === "string" ? { print: s["print"] } : {}),
     ...(s["brand"] === "auto" ? { brand: "auto" } : {}),
+    ...(s["new"] === "1" || s["new"] === "true" ? { new: "1" } : {}),
   }),
 
   head: () => ({
