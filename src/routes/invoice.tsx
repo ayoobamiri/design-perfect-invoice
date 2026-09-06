@@ -90,7 +90,7 @@ function Field({
   name?: string;
 }) {
   return (
-    <div className={`flex flex-col px-1.5 pt-0.5 pb-1 ${className}`}>
+    <div className={`field-wrap flex flex-col px-1.5 pt-0.5 pb-1 ${className}`}>
       <span className="form-label">{label}</span>
       <input className="form-input" name={name ?? slug(label)} aria-label={label} />
     </div>
