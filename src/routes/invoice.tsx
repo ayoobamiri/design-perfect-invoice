@@ -292,7 +292,7 @@ function InvoicePage() {
     <div className="min-h-screen bg-background px-2 py-6 sm:px-4">
       {/* action bar (not printed) */}
       <div className="no-print mx-auto mb-3 flex w-full max-w-[1100px] flex-wrap items-center justify-between gap-2">
-        <span className="font-form-condensed text-lg font-bold tracking-wide text-primary-foreground uppercase">
+        <span className="font-form-condensed text-base font-bold tracking-wide text-primary-foreground uppercase">
           {company.label} — Digital Invoice
           {status && (
             <span className="ml-3 font-normal normal-case opacity-70">{status}</span>
@@ -435,7 +435,7 @@ function InvoicePage() {
               <div className="flex items-center justify-between gap-2 px-3 py-1">
                 <div className="flex flex-1 flex-col items-center">
                   <div className="flex w-full items-baseline gap-1">
-                    <span className="font-form-mono text-lg">$</span>
+                    <span className="font-form-mono text-base">$</span>
                     <input
                       className="form-input border-b border-ink text-right"
                       name="est_test_fee"
@@ -449,7 +449,7 @@ function InvoicePage() {
                 <span className="text-lg font-bold">+</span>
                 <div className="flex flex-1 flex-col items-center">
                   <div className="flex w-full items-baseline gap-1">
-                    <span className="font-form-mono text-lg">$</span>
+                    <span className="font-form-mono text-base">$</span>
                     <input
                       className="form-input border-b border-ink text-right"
                       name="est_cert_fee"
@@ -463,7 +463,7 @@ function InvoicePage() {
                 <span className="text-lg font-bold">=</span>
                 <div className="flex flex-1 flex-col items-center">
                   <div className="flex w-full items-baseline gap-1">
-                    <span className="font-form-mono text-lg">$</span>
+                    <span className="font-form-mono text-base">$</span>
                     <Computed name="est_total" value={money(estTotal)} />
                   </div>
                   <span className="form-label mt-0.5">Estimate Total</span>
@@ -611,7 +611,7 @@ function InvoicePage() {
                 {/* row 1 */}
                 <div className="grid grid-cols-[110px_1fr_90px_1fr] border-b border-ink">
                   <div className="flex items-end gap-1 border-r border-ink px-1.5 pb-1">
-                    <span className="font-form-mono text-lg">$</span>
+                    <span className="font-form-mono text-base">$</span>
                     <input className="form-input text-right" name="rev_amount" aria-label="Revised estimate amount" />
                   </div>
                   <Field label="Additional Cost" name="rev_additional_cost" className="border-r border-ink" />
@@ -627,7 +627,7 @@ function InvoicePage() {
                 {/* row 2 */}
                 <div className="grid grid-cols-[110px_1fr_90px_1fr]">
                   <div className="flex items-end gap-1 border-r border-ink px-1.5 pb-1">
-                    <span className="font-form-mono text-lg">$</span>
+                    <span className="font-form-mono text-base">$</span>
                     <input className="form-input text-right" name="rev_total" aria-label="Revised total" />
                   </div>
                   <Field label="Contacted By" name="rev_contacted_by" className="border-r border-ink" />
@@ -734,7 +734,7 @@ function InvoicePage() {
             {/* signature — typed, handwriting font */}
             <div className="form-box mt-1 flex items-end gap-2 px-2 pt-1 pb-1.5">
               <span className="form-label">Cust. Sign</span>
-              <span className="font-form-mono text-lg font-bold">X</span>
+              <span className="font-form-mono text-base font-bold">X</span>
               <input
                 name="customer_signature"
                 aria-label="Customer signature"
