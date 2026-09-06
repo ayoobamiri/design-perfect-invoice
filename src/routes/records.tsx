@@ -199,7 +199,7 @@ function RecordsPage() {
             </button>
             <Link
               to="/invoice"
-              search={search}
+              search={{ ...search, new: "1" }}
               className="rounded-sm border border-paper/60 px-4 py-2 font-form-condensed text-xs font-bold uppercase hover:bg-paper/10"
             >
               New Invoice
