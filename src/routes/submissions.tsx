@@ -237,14 +237,14 @@ function SubmissionsPage() {
                 <div className="mt-3 flex flex-wrap gap-2 text-[11px] font-bold uppercase">
                   <button
                     type="button"
-                    onClick={() => useForInvoice(r, "smog")}
+                    onClick={() => sendToInvoice(r, "smog")}
                     className="rounded-sm bg-ink px-3 py-2 text-paper"
                   >
                     Use in Smog Invoice
                   </button>
                   <button
                     type="button"
-                    onClick={() => useForInvoice(r, "auto")}
+                    onClick={() => sendToInvoice(r, "auto")}
                     className="rounded-sm bg-ink px-3 py-2 text-paper"
                   >
                     Use in Automotive Invoice

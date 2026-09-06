@@ -20,7 +20,7 @@ export const Route = createFileRoute("/records")({
   }),
   head: () => ({
     meta: [
-      { title: "Saved Entries — Power Inn Smog" },
+      { title: "Saved Entries — Power Inn Smog & Automotive" },
       {
         name: "description",
         content: "Sheet of all saved repair order and smog invoice entries for Power Inn Smog.",
