@@ -19,10 +19,11 @@ import {
 export const Route = createFileRoute("/invoice")({
   validateSearch: (
     s: Record<string, unknown>,
-  ): { edit?: string; print?: string; brand?: string } => ({
+  ): { edit?: string; print?: string; brand?: string; new?: string } => ({
     ...(typeof s["edit"] === "string" ? { edit: s["edit"] } : {}),
     ...(typeof s["print"] === "string" ? { print: s["print"] } : {}),
     ...(s["brand"] === "auto" ? { brand: "auto" } : {}),
+    ...(s["new"] === "1" || s["new"] === "true" ? { new: "1" } : {}),
   }),
 
   head: () => ({
@@ -119,7 +120,7 @@ const EMISSIONS = [
 function InvoicePage() {
   const formRef = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
-  const { edit, print, brand: brandParam } = Route.useSearch();
+  const { edit, print, brand: brandParam, new: isNewFlag } = Route.useSearch();
   const brand = toBrand(brandParam);
   const company = BRANDS[brand];
 
@@ -203,11 +204,15 @@ function InvoicePage() {
   };
 
   useEffect(() => {
+    const isNew = isNewFlag === "1";
+    if (isNew) {
+      clearDraft(brand);
+    }
     const entry = edit ? getEntry(edit, brand) : undefined;
-    const data = entry?.data ?? (edit ? null : getDraft(brand));
+    const data = entry?.data ?? (edit || isNew ? null : getDraft(brand));
     savedIdRef.current = entry ? entry.id : null;
     let merged = data ?? {};
-    if (!edit) {
+    if (!edit && !isNew) {
       const pending = sessionStorage.getItem(PENDING_CUSTOMER_KEY);
       if (pending) {
         sessionStorage.removeItem(PENDING_CUSTOMER_KEY);
@@ -232,9 +237,17 @@ function InvoicePage() {
       }, 300);
       return () => clearTimeout(t);
     }
+    if (isNew) {
+      // Remove the ?new=1 flag after the first clean load so refreshes keep the draft.
+      navigate({
+        to: "/invoice",
+        search: brand === "auto" ? { brand: "auto" } : {},
+        replace: true,
+      });
+    }
     return undefined;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [edit, print, brand]);
+  }, [edit, print, brand, isNewFlag, navigate]);
 
   const onFormInput = () => {
     if (edit || !invoiceId) return;
