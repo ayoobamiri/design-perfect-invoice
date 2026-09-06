@@ -86,6 +86,9 @@ export const listSubmissions = createServerFn({ method: "GET" }).handler(async (
 export const deleteSubmission = createServerFn({ method: "POST" })
   .inputValidator((data: { id: string }) => ({ id: String(data?.id ?? "") }))
   .handler(async ({ data }) => {
+    if (!(await isUnlocked())) {
+      throw new Error("Not authorized");
+    }
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin
       .from("customer_submissions")

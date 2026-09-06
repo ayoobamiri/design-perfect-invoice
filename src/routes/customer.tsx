@@ -117,7 +117,8 @@ function CustomerPage() {
         <div className="form-box bg-paper px-5 py-8 text-ink sm:px-10">
           <div className="mb-4">
             <Link
-              to="/checkin"
+              to="/"
+              search={{}}
               className="inline-flex items-center gap-2 rounded-sm border-2 border-ink bg-paper px-5 py-3 font-form-condensed text-lg font-bold uppercase tracking-wide text-ink transition active:bg-ink/10"
             >
               <span aria-hidden>←</span> Back

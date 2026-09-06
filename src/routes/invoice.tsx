@@ -212,7 +212,7 @@ function InvoicePage() {
     const data = entry?.data ?? (edit || isNew ? null : getDraft(brand));
     savedIdRef.current = entry ? entry.id : null;
     let merged = data ?? {};
-    if (!edit && !isNew) {
+    if (!edit) {
       const pending = sessionStorage.getItem(PENDING_CUSTOMER_KEY);
       if (pending) {
         sessionStorage.removeItem(PENDING_CUSTOMER_KEY);
