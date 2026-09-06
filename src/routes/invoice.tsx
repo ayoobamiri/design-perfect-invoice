@@ -238,6 +238,8 @@ function InvoicePage() {
       return () => clearTimeout(t);
     }
     if (isNew) {
+      // Keep any customer check-in data across the URL cleanup below.
+      if (Object.keys(merged).length > 0) saveDraft(merged, brand);
       // Remove the ?new=1 flag after the first clean load so refreshes keep the draft.
       navigate({
         to: "/invoice",
