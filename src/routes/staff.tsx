@@ -102,7 +102,7 @@ function StaffPage() {
           <div className="mx-auto mt-9 grid max-w-2xl gap-3 sm:grid-cols-2">
             <Link
               to="/invoice"
-              search={{}}
+              search={{ new: "1" }}
               className="group rounded-sm bg-ink px-6 py-4 text-left text-paper ring-1 ring-ink transition hover:-translate-y-0.5 hover:shadow-[0_10px_25px_-8px_rgba(0,0,0,0.5)]"
             >
               <span className="font-form-condensed block text-base font-bold uppercase">
