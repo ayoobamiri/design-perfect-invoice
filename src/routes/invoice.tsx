@@ -127,6 +127,7 @@ function InvoicePage() {
   const [invoiceId, setInvoiceId] = useState("");
   const [status, setStatus] = useState("");
   const savedIdRef = useRef<string | null>(null);
+  const pendingCustomerRef = useRef<Record<string, string> | null>(null);
 
   const [testFee, setTestFee] = useState("");
   const [certFee, setCertFee] = useState("");
@@ -212,15 +213,18 @@ function InvoicePage() {
     const data = entry?.data ?? (edit || isNew ? null : getDraft(brand));
     savedIdRef.current = entry ? entry.id : null;
     let merged = data ?? {};
-    if (!edit && !isNew) {
+    if (!edit) {
       const pending = sessionStorage.getItem(PENDING_CUSTOMER_KEY);
       if (pending) {
         sessionStorage.removeItem(PENDING_CUSTOMER_KEY);
         try {
-          merged = { ...merged, ...(JSON.parse(pending) as Record<string, string>) };
+          pendingCustomerRef.current = JSON.parse(pending) as Record<string, string>;
         } catch {
           /* ignore malformed pending customer data */
         }
+      }
+      if (pendingCustomerRef.current) {
+        merged = { ...merged, ...pendingCustomerRef.current };
       }
     }
     applyData(merged);
@@ -238,6 +242,8 @@ function InvoicePage() {
       return () => clearTimeout(t);
     }
     if (isNew) {
+      // Keep any customer check-in data across the URL cleanup below.
+      if (Object.keys(merged).length > 0) saveDraft(merged, brand);
       // Remove the ?new=1 flag after the first clean load so refreshes keep the draft.
       navigate({
         to: "/invoice",
