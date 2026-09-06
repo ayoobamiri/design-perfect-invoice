@@ -153,6 +153,31 @@
   padding: 4px 8px;
 }
 
+/* Larger text inside section 1 customer/estimate table */
+.section-1-table .field-wrap {
+  padding: 0.25rem 0.5rem 0.25rem;
+}
+.section-1-table .form-label {
+  font-size: 13px;
+}
+.section-1-table .form-input {
+  font-size: 15px;
+}
+.section-1-table p.text-\[14px\] {
+  font-size: 15px;
+}
+@media print {
+  .section-1-table .form-label {
+    font-size: 14px;
+  }
+  .section-1-table .form-input {
+    font-size: 16px;
+  }
+  .section-1-table p.text-\[14px\] {
+    font-size: 16px;
+  }
+}
+
 @utility form-box {
   border: 1.5px solid var(--color-ink);
   background: var(--color-paper);
