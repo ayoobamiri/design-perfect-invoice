@@ -239,10 +239,11 @@ function InvoicePage() {
     }
     if (isNew) {
       // Remove the ?new=1 flag after the first clean load so refreshes keep the draft.
-      navigate(
-        { to: "/invoice", search: brand === "auto" ? { brand: "auto" } : {} },
-        { replace: true },
-      );
+      navigate({
+        to: "/invoice",
+        search: brand === "auto" ? { brand: "auto" } : {},
+        replace: true,
+      });
     }
     return undefined;
     // eslint-disable-next-line react-hooks/exhaustive-deps
