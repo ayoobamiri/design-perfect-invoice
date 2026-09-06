@@ -143,12 +143,12 @@
 
 /* Larger text inside the totals table */
 .totals-table .form-label {
-  font-size: 17px;
+  font-size: 15px;
   padding: 6px 8px;
 }
 .totals-table .form-input,
 .totals-table input {
-  font-size: 19px;
+  font-size: 17px;
   font-weight: 700;
   padding: 4px 8px;
 }
@@ -190,7 +190,7 @@
 @utility form-label {
   font-family: var(--font-form-condensed);
   font-weight: 700;
-  font-size: 13px;
+  font-size: 15px;
   letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--color-ink);
@@ -201,7 +201,7 @@
   background: transparent;
   outline: none;
   font-family: var(--font-form-mono);
-  font-size: 15px;
+  font-size: 17px;
   color: var(--color-ink);
   &:focus {
     background: color-mix(in oklab, var(--color-ink) 5%, transparent);
