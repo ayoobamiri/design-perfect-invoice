@@ -185,7 +185,7 @@
 @utility form-label {
   font-family: var(--font-form-condensed);
   font-weight: 700;
-  font-size: 15px;
+  font-size: 11px;
   letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--color-ink);
