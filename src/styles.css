@@ -196,7 +196,7 @@
   background: transparent;
   outline: none;
   font-family: var(--font-form-mono);
-  font-size: 17px;
+  font-size: 13px;
   color: var(--color-ink);
   &:focus {
     background: color-mix(in oklab, var(--color-ink) 5%, transparent);
