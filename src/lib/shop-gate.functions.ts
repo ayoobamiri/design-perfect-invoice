@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { useSession } from "@tanstack/react-start/server";
+import { createHash, timingSafeEqual } from "node:crypto";
 
 export type CustomerSubmission = {
   id: string;
@@ -30,9 +31,19 @@ function sessionConfig() {
   };
 }
 
-// Passcode gate temporarily disabled — staff access is open.
+function passwordMatches(input: string, expected: string): boolean {
+  const a = createHash("sha256").update(input, "utf8").digest();
+  const b = createHash("sha256").update(expected, "utf8").digest();
+  return timingSafeEqual(a, b);
+}
+
+async function isUnlocked(): Promise<boolean> {
+  const session = await useSession<GateSession>(sessionConfig());
+  return session.data.unlocked === true;
+}
+
 export const shopStatus = createServerFn({ method: "GET" }).handler(async () => {
-  return { unlocked: true };
+  return { unlocked: await isUnlocked() };
 });
 
 export const unlockShop = createServerFn({ method: "POST" })
@@ -40,7 +51,11 @@ export const unlockShop = createServerFn({ method: "POST" })
     passcode: String(data?.passcode ?? "").slice(0, 200),
   }))
   .handler(async ({ data }) => {
-    void data;
+    const expected = process.env["SHOP_PASSCODE"];
+    if (!expected) throw new Error("SHOP_PASSCODE is not set");
+    if (!passwordMatches(data.passcode, expected)) {
+      return { ok: false as const };
+    }
     const session = await useSession<GateSession>(sessionConfig());
     await session.update({ unlocked: true });
     return { ok: true as const };
@@ -53,6 +68,9 @@ export const lockShop = createServerFn({ method: "POST" }).handler(async () => {
 });
 
 export const listSubmissions = createServerFn({ method: "GET" }).handler(async () => {
+  if (!(await isUnlocked())) {
+    return { unlocked: false as const, submissions: [] as CustomerSubmission[] };
+  }
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   const { data, error } = await supabaseAdmin
     .from("customer_submissions")

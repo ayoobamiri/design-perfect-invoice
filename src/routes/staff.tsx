@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { StaffGate } from "@/components/StaffGate";
 import { getEntries } from "@/lib/invoice-store";
 import { useEffect, useState } from "react";
 
@@ -21,7 +22,11 @@ export const Route = createFileRoute("/staff")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: StaffPage,
+  component: () => (
+    <StaffGate>
+      <StaffPage />
+    </StaffGate>
+  ),
 });
 
 function StaffPage() {

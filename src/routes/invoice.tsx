@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { StaffGate } from "@/components/StaffGate";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PENDING_CUSTOMER_KEY } from "@/lib/pending-customer";
 import {
@@ -42,7 +43,11 @@ export const Route = createFileRoute("/invoice")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: InvoicePage,
+  component: () => (
+    <StaffGate>
+      <InvoicePage />
+    </StaffGate>
+  ),
 });
 
 

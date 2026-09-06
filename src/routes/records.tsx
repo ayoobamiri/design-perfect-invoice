@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { StaffGate } from "@/components/StaffGate";
 import { useServerFn } from "@tanstack/react-start";
 import { Fragment, useCallback, useEffect, useState } from "react";
 import {
@@ -33,7 +34,11 @@ export const Route = createFileRoute("/records")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
-  component: RecordsPage,
+  component: () => (
+    <StaffGate>
+      <RecordsPage />
+    </StaffGate>
+  ),
 });
 
 const COLS: Array<[string, string]> = [
