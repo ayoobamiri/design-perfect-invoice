@@ -120,7 +120,7 @@ const EMISSIONS = [
 function InvoicePage() {
   const formRef = useRef<HTMLFormElement>(null);
   const navigate = useNavigate();
-  const { edit, print, brand: brandParam } = Route.useSearch();
+  const { edit, print, brand: brandParam, new: isNewFlag } = Route.useSearch();
   const brand = toBrand(brandParam);
   const company = BRANDS[brand];
 
