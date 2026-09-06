@@ -127,6 +127,7 @@ function InvoicePage() {
   const [invoiceId, setInvoiceId] = useState("");
   const [status, setStatus] = useState("");
   const savedIdRef = useRef<string | null>(null);
+  const pendingCustomerRef = useRef<Record<string, string> | null>(null);
 
   const [testFee, setTestFee] = useState("");
   const [certFee, setCertFee] = useState("");
