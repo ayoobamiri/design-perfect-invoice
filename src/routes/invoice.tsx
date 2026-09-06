@@ -394,7 +394,7 @@ function InvoicePage() {
         {/* ===== CUSTOMER / VEHICLE + RIGHT META COLUMN ===== */}
         <div className="mt-2 flex flex-col gap-3 lg:flex-row print:flex-row">
           {/* left column */}
-          <div className="lg:w-[54%] print:w-[54%]">
+          <div className="section-1-table lg:w-[54%] print:w-[54%]">
             <div className="form-box">
               <Field label="Name" className="border-b border-ink" />
               <Field label="Address" className="border-b border-ink" />
