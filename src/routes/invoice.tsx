@@ -204,11 +204,15 @@ function InvoicePage() {
   };
 
   useEffect(() => {
+    const isNew = isNewFlag === "1";
+    if (isNew) {
+      clearDraft(brand);
+    }
     const entry = edit ? getEntry(edit, brand) : undefined;
-    const data = entry?.data ?? (edit ? null : getDraft(brand));
+    const data = entry?.data ?? (edit || isNew ? null : getDraft(brand));
     savedIdRef.current = entry ? entry.id : null;
     let merged = data ?? {};
-    if (!edit) {
+    if (!edit && !isNew) {
       const pending = sessionStorage.getItem(PENDING_CUSTOMER_KEY);
       if (pending) {
         sessionStorage.removeItem(PENDING_CUSTOMER_KEY);
@@ -233,9 +237,16 @@ function InvoicePage() {
       }, 300);
       return () => clearTimeout(t);
     }
+    if (isNew) {
+      // Remove the ?new=1 flag after the first clean load so refreshes keep the draft.
+      navigate(
+        { to: "/invoice", search: brand === "auto" ? { brand: "auto" } : {} },
+        { replace: true },
+      );
+    }
     return undefined;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [edit, print, brand]);
+  }, [edit, print, brand, isNewFlag, navigate]);
 
   const onFormInput = () => {
     if (edit || !invoiceId) return;
