@@ -28,6 +28,14 @@ function normData(v: unknown): Record<string, string> {
   return out;
 }
 
+/** Reserve the next unique invoice number for a brand (atomic, per-year). */
+async function nextInvoiceId(brand: "smog" | "auto"): Promise<string> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin.rpc("next_invoice_id", { _brand: brand });
+  if (error) throw new Error(error.message);
+  return String(data ?? "");
+}
+
 /** Pull new customer check-ins into the shared invoice sheet (once each). */
 async function importCheckIns(brand: "smog" | "auto") {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -41,13 +49,16 @@ async function importCheckIns(brand: "smog" | "auto") {
   if (error) throw new Error(error.message);
   if (!subs || subs.length === 0) return;
 
-  const rows = subs.map((s) => ({
+  const ids: string[] = [];
+  for (const _s of subs) ids.push(await nextInvoiceId(brand));
+
+  const rows = subs.map((s, i) => ({
     brand,
     submission_id: s.id,
     saved_at: s.created_at,
     data: {
       submission_id: s.id,
-      invoice_id: brand === "auto" ? "PIA" : "PIS",
+      invoice_id: ids[i] ?? "",
       date_in: new Date(s.created_at).toLocaleDateString("en-US"),
       name: s.name,
       address: s.address,
@@ -133,8 +144,12 @@ export const saveInvoice = createServerFn({ method: "POST" })
     if (!(await requireShopUnlocked())) throw new Error("Not authorized");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const invoiceNumber = (data.data["invoice_id"] ?? "").trim().toUpperCase();
-    if (invoiceNumber && invoiceNumber !== "PIS" && invoiceNumber !== "PIA") {
+    let invoiceNumber = (data.data["invoice_id"] ?? "").trim().toUpperCase();
+    if (!invoiceNumber || invoiceNumber === "PIS" || invoiceNumber === "PIA") {
+      invoiceNumber = await nextInvoiceId(data.brand);
+      data.data["invoice_id"] = invoiceNumber;
+    }
+    {
       const { data: existing, error: clashError } = await supabaseAdmin
         .from("invoices")
         .select("id, data")
@@ -157,7 +172,7 @@ export const saveInvoice = createServerFn({ method: "POST" })
         .update({ data: data.data, saved_at: new Date().toISOString() })
         .eq("id", data.id);
       if (error) throw new Error(error.message);
-      return { ok: true as const, id: data.id };
+      return { ok: true as const, id: data.id, invoiceNumber };
     }
 
     const { data: inserted, error } = await supabaseAdmin
@@ -166,7 +181,15 @@ export const saveInvoice = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (error) throw new Error(error.message);
-    return { ok: true as const, id: inserted.id };
+    return { ok: true as const, id: inserted.id, invoiceNumber };
+  });
+
+/** Reserve and return the next invoice number for a brand. */
+export const allocateInvoiceId = createServerFn({ method: "POST" })
+  .inputValidator((data: { brand?: string }) => ({ brand: normBrand(data?.brand) }))
+  .handler(async ({ data }) => {
+    if (!(await requireShopUnlocked())) return { invoiceId: "" };
+    return { invoiceId: await nextInvoiceId(data.brand) };
   });
 
 export const deleteInvoice = createServerFn({ method: "POST" })

@@ -3,7 +3,7 @@ import { StaffGate } from "@/components/StaffGate";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PENDING_CUSTOMER_KEY } from "@/lib/pending-customer";
 import { useServerFn } from "@tanstack/react-start";
-import { getInvoice, saveInvoice } from "@/lib/invoices.functions";
+import { allocateInvoiceId, getInvoice, saveInvoice } from "@/lib/invoices.functions";
 import {
   clearDraft,
   getDraft,
@@ -124,6 +124,7 @@ function InvoicePage() {
 
   const fetchInvoice = useServerFn(getInvoice);
   const storeInvoice = useServerFn(saveInvoice);
+  const newInvoiceId = useServerFn(allocateInvoiceId);
   const [invoiceId, setInvoiceId] = useState("");
 
   const [status, setStatus] = useState("");
@@ -243,7 +244,18 @@ function InvoicePage() {
         }
       }
       applyData(merged);
-      setInvoiceId(data?.["invoice_id"] || company.prefix);
+      const existingId = (data?.["invoice_id"] ?? "").trim();
+      if (existingId && existingId.toUpperCase() !== company.prefix) {
+        setInvoiceId(existingId);
+      } else {
+        setInvoiceId("");
+        try {
+          const res = await newInvoiceId({ data: { brand } });
+          if (!cancelled && res.invoiceId) setInvoiceId(res.invoiceId);
+        } catch {
+          /* number is assigned on save if this fails */
+        }
+      }
       setStatus(entry ? `Editing saved invoice ${entry.data["invoice_id"] ?? ""}` : "");
       if (entry && print) {
         const prev = document.title;
@@ -284,12 +296,6 @@ function InvoicePage() {
 
   const persist = async () => {
     const data = collectData();
-    const id = (data["invoice_id"] ?? "").trim();
-    if (!id || id.toUpperCase() === company.prefix) {
-      setStatus("Please enter an invoice number.");
-      window.alert("Please enter an invoice number.");
-      return undefined;
-    }
     let res;
     try {
       res = await storeInvoice({
@@ -301,12 +307,16 @@ function InvoicePage() {
       return undefined;
     }
     if (!res.ok) {
-      setStatus(`Invoice number ${id} already used.`);
-      window.alert(`You already used this number (${id}). Please enter a different one.`);
+      setStatus("Could not save this invoice.");
+      window.alert("Could not save this invoice. Please try again.");
       return undefined;
     }
     const wasUpdate = Boolean(savedIdRef.current);
     savedIdRef.current = res.id ?? savedIdRef.current;
+    if (res.invoiceNumber) {
+      data["invoice_id"] = res.invoiceNumber;
+      setInvoiceId(res.invoiceNumber);
+    }
     setStatus(
       `${wasUpdate ? "Updated" : "Saved"} ${data["invoice_id"]} at ${new Date().toLocaleTimeString()}`,
     );
@@ -323,8 +333,16 @@ function InvoicePage() {
     clearDraft(brand);
     savedIdRef.current = null;
     applyData({});
-    setInvoiceId(company.prefix);
+    setInvoiceId("");
     setStatus("");
+    void (async () => {
+      try {
+        const res = await newInvoiceId({ data: { brand } });
+        if (res.invoiceId) setInvoiceId(res.invoiceId);
+      } catch {
+        /* number is assigned on save if this fails */
+      }
+    })();
     if (edit || print) navigate({ to: "/invoice", search: brand === "auto" ? { brand: "auto" } : {} });
   };
 
@@ -387,9 +405,9 @@ function InvoicePage() {
             <input
               name="invoice_id"
               value={invoiceId}
-              onChange={(e) => setInvoiceId(e.target.value)}
+              readOnly
               aria-label="Invoice ID"
-              className="font-form-mono w-24 bg-transparent text-[21px] font-bold outline-none focus:bg-ink/5"
+              className="font-form-mono w-28 bg-transparent text-[21px] font-bold outline-none"
             />
           </div>
         </div>
