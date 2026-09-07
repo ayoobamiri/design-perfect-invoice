@@ -125,6 +125,7 @@ function InvoicePage() {
   const fetchInvoice = useServerFn(getInvoice);
   const storeInvoice = useServerFn(saveInvoice);
   const newInvoiceId = useServerFn(allocateInvoiceId);
+  const removeInvoice = useServerFn(deleteInvoice);
   const [invoiceId, setInvoiceId] = useState("");
   const [idManual, setIdManual] = useState(false);
 
