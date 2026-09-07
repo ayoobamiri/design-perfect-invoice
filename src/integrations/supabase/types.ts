@@ -71,6 +71,33 @@ export type Database = {
         }
         Relationships: []
       }
+      invoices: {
+        Row: {
+          brand: string
+          created_at: string
+          data: Json
+          id: string
+          saved_at: string
+          submission_id: string | null
+        }
+        Insert: {
+          brand?: string
+          created_at?: string
+          data?: Json
+          id?: string
+          saved_at?: string
+          submission_id?: string | null
+        }
+        Update: {
+          brand?: string
+          created_at?: string
+          data?: Json
+          id?: string
+          saved_at?: string
+          submission_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
