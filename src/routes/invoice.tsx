@@ -122,7 +122,10 @@ function InvoicePage() {
   const brand = toBrand(brandParam);
   const company = BRANDS[brand];
 
+  const fetchInvoice = useServerFn(getInvoice);
+  const storeInvoice = useServerFn(saveInvoice);
   const [invoiceId, setInvoiceId] = useState("");
+
   const [status, setStatus] = useState("");
   const savedIdRef = useRef<string | null>(null);
   const pendingCustomerRef = useRef<Record<string, string> | null>(null);
