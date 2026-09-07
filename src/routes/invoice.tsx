@@ -305,9 +305,10 @@ function InvoicePage() {
   }, [edit, print, brand, isNewFlag, navigate]);
 
   const onFormInput = () => {
-    if (edit || !invoiceId) return;
+    if (edit || (!invoiceId && !idManual)) return;
     saveDraft(collectData(), brand);
   };
+
 
   /* ----- actions ----- */
 
