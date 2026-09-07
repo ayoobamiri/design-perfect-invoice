@@ -144,8 +144,12 @@ export const saveInvoice = createServerFn({ method: "POST" })
     if (!(await requireShopUnlocked())) throw new Error("Not authorized");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const invoiceNumber = (data.data["invoice_id"] ?? "").trim().toUpperCase();
-    if (invoiceNumber && invoiceNumber !== "PIS" && invoiceNumber !== "PIA") {
+    let invoiceNumber = (data.data["invoice_id"] ?? "").trim().toUpperCase();
+    if (!invoiceNumber || invoiceNumber === "PIS" || invoiceNumber === "PIA") {
+      invoiceNumber = await nextInvoiceId(data.brand);
+      data.data["invoice_id"] = invoiceNumber;
+    }
+    {
       const { data: existing, error: clashError } = await supabaseAdmin
         .from("invoices")
         .select("id, data")
