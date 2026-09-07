@@ -266,6 +266,34 @@ function RecordsPage() {
           </div>
         )}
 
+        {access === "unlocked" && legacyCount > 0 && (
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border border-paper/40 bg-paper/10 px-4 py-3">
+            <p className="font-form-condensed text-sm font-bold uppercase">
+              {legacyCount} invoice{legacyCount === 1 ? "" : "s"} were saved only on this
+              computer. Upload them so every browser sees them.
+            </p>
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  const raw = localStorage.getItem(legacyKey);
+                  const parsed = raw ? (JSON.parse(raw) as InvoiceEntry[]) : [];
+                  await uploadLegacy({ data: { brand, entries: parsed } });
+                  localStorage.removeItem(legacyKey);
+                  setLegacyCount(0);
+                  await importSubmissions();
+                } catch {
+                  setAccessError("Upload failed. Please try again.");
+                }
+              }}
+              className="rounded-sm bg-paper px-4 py-2 font-form-condensed text-xs font-bold text-ink uppercase hover:opacity-90"
+            >
+              Upload These Invoices
+            </button>
+          </div>
+        )}
+
+
         {entries.length === 0 ? (
           <p className="mt-10 text-center font-form-condensed text-sm text-paper/70">
             {access === "locked"
