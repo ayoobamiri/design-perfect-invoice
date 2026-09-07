@@ -71,6 +71,24 @@ export type Database = {
         }
         Relationships: []
       }
+      invoice_counters: {
+        Row: {
+          brand: string
+          last_number: number
+          yr: number
+        }
+        Insert: {
+          brand: string
+          last_number?: number
+          yr: number
+        }
+        Update: {
+          brand?: string
+          last_number?: number
+          yr?: number
+        }
+        Relationships: []
+      }
       invoices: {
         Row: {
           brand: string
@@ -103,7 +121,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      next_invoice_id: { Args: { _brand: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never
