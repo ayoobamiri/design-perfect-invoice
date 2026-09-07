@@ -421,12 +421,32 @@ function InvoicePage() {
             <input
               name="invoice_id"
               value={invoiceId}
-              readOnly
+              readOnly={!idManual}
+              onChange={(e) => setInvoiceId(e.target.value.toUpperCase())}
+              placeholder={idManual ? company.prefix : ""}
               aria-label="Invoice ID"
               className="font-form-mono w-28 bg-transparent text-[21px] font-bold outline-none"
             />
+            {idManual && (
+              <button
+                type="button"
+                onClick={() =>
+                  void (async () => {
+                    const allocated = await requestInvoiceId();
+                    if (allocated) {
+                      setInvoiceId(allocated);
+                      setIdManual(false);
+                    }
+                  })()
+                }
+                className="rounded-sm border border-ink px-2 py-1 text-[11px] font-bold uppercase print:hidden"
+              >
+                Get Number
+              </button>
+            )}
           </div>
         </div>
+
 
         {/* ===== HEADER ===== */}
         <div className="flex flex-col gap-3 lg:flex-row print:flex-row">
