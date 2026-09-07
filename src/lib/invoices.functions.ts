@@ -1,5 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireShopUnlocked } from "@/lib/shop-gate.functions";
+
+async function requireShopUnlocked(): Promise<boolean> {
+  const mod = await import("@/lib/shop-gate.server");
+  return mod.requireShopUnlocked();
+}
+
 
 export type InvoiceRow = {
   id: string;
