@@ -354,15 +354,13 @@ function InvoicePage() {
     setInvoiceId("");
     setStatus("");
     void (async () => {
-      try {
-        const res = await newInvoiceId({ data: { brand } });
-        if (res.invoiceId) setInvoiceId(res.invoiceId);
-      } catch {
-        /* number is assigned on save if this fails */
-      }
+      const allocated = await requestInvoiceId();
+      setInvoiceId(allocated);
+      setIdManual(allocated === "");
     })();
     if (edit || print) navigate({ to: "/invoice", search: brand === "auto" ? { brand: "auto" } : {} });
   };
+
 
   return (
     <div className="min-h-screen bg-background px-2 py-6 sm:px-4">
