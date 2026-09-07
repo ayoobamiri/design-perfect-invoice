@@ -9,7 +9,7 @@ import {
   type CustomerSubmission,
 } from "@/lib/shop-gate.functions";
 import { PENDING_CUSTOMER_KEY } from "@/lib/pending-customer";
-import { saveEntry } from "@/lib/invoice-store";
+import { saveInvoice } from "@/lib/invoices.functions";
 
 export const Route = createFileRoute("/submissions")({
   head: () => ({
@@ -39,6 +39,8 @@ function SubmissionsPage() {
   const unlock = useServerFn(unlockShop);
   const lock = useServerFn(lockShop);
   const remove = useServerFn(deleteSubmission);
+  const addInvoice = useServerFn(saveInvoice);
+
 
   const [unlocked, setUnlocked] = useState<boolean | null>(null);
   const [rows, setRows] = useState<CustomerSubmission[]>([]);
@@ -94,22 +96,20 @@ function SubmissionsPage() {
     });
   }
 
-  function addToSheet(row: CustomerSubmission, brand: "smog" | "auto") {
+  async function addToSheet(row: CustomerSubmission, brand: "smog" | "auto") {
     const data = toInvoiceData(row);
     data["date_in"] = new Date().toLocaleDateString();
     data["invoice_id"] = brand === "auto" ? "PIA" : "PIS";
-    saveEntry(
-      {
-        id: crypto.randomUUID(),
-        savedAt: new Date().toISOString(),
-        data,
-      },
-      brand,
-    );
-    setNotice(
-      `${row.name || "Customer"} added to the ${brand === "auto" ? "Automotive" : "Smog"} sheet.`,
-    );
+    try {
+      await addInvoice({ data: { brand, data } });
+      setNotice(
+        `${row.name || "Customer"} added to the ${brand === "auto" ? "Automotive" : "Smog"} sheet.`,
+      );
+    } catch {
+      setNotice("Could not add to the sheet. Please try again.");
+    }
   }
+
 
   if (unlocked === null) {
     return (

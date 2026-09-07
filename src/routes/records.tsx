@@ -3,16 +3,14 @@ import { StaffGate } from "@/components/StaffGate";
 import { useServerFn } from "@tanstack/react-start";
 import { Fragment, useCallback, useEffect, useState } from "react";
 import {
-  deleteEntry,
   entriesToCsv,
-  getDeletedSubmissionIds,
-  getEntries,
-  saveEntry,
   type InvoiceEntry,
   BRANDS,
   toBrand,
 } from "@/lib/invoice-store";
-import { listSubmissions, unlockShop } from "@/lib/shop-gate.functions";
+import { deleteInvoice, importLegacyInvoices, listInvoices } from "@/lib/invoices.functions";
+import { unlockShop } from "@/lib/shop-gate.functions";
+
 
 export const Route = createFileRoute("/records")({
   validateSearch: (s: Record<string, unknown>): { brand?: string } => ({
@@ -59,64 +57,45 @@ function RecordsPage() {
   const { brand: brandParam } = Route.useSearch();
   const brand = toBrand(brandParam);
   const search = brand === "auto" ? { brand: "auto" as const } : {};
-  const [entries, setEntries] = useState<InvoiceEntry[]>(() => getEntries(brand));
-  const list = useServerFn(listSubmissions);
+  const [entries, setEntries] = useState<InvoiceEntry[]>([]);
+  const list = useServerFn(listInvoices);
+  const remove = useServerFn(deleteInvoice);
+  const uploadLegacy = useServerFn(importLegacyInvoices);
   const unlock = useServerFn(unlockShop);
   const [access, setAccess] = useState<"loading" | "locked" | "unlocked" | "error">(
     "loading",
   );
   const [passcode, setPasscode] = useState("");
   const [accessError, setAccessError] = useState("");
+  const [legacyCount, setLegacyCount] = useState(0);
+
+  const legacyKey = brand === "auto" ? "power-inn-auto-entries" : "power-inn-smog-entries";
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(legacyKey);
+      const parsed = raw ? (JSON.parse(raw) as InvoiceEntry[]) : [];
+      setLegacyCount(Array.isArray(parsed) ? parsed.length : 0);
+    } catch {
+      setLegacyCount(0);
+    }
+  }, [legacyKey]);
+
 
   const importSubmissions = useCallback(async () => {
-    const res = await list({});
+    const res = await list({ data: { brand } });
     if (!res.unlocked) {
       setAccess("locked");
       return;
     }
-    const existing = new Set(
-      getEntries(brand)
-        .map((entry) => entry.data["submission_id"])
-        .filter(Boolean) as string[],
+    setEntries(
+      res.invoices.map((row) => ({ id: row.id, savedAt: row.saved_at, data: row.data })),
     );
-    const deleted = getDeletedSubmissionIds(brand);
-    const incoming = res.submissions
-      .filter((submission) => (submission.brand === "auto" ? "auto" : "smog") === brand)
-      .filter((submission) => !existing.has(submission.id))
-      .filter((submission) => !deleted.has(submission.id))
-      .reverse();
-    incoming.forEach((submission) => {
-      saveEntry(
-        {
-          id: crypto.randomUUID(),
-          savedAt: submission.created_at,
-          data: {
-            submission_id: submission.id,
-            invoice_id: BRANDS[brand].prefix,
-            date_in: new Date(submission.created_at).toLocaleDateString(),
-            name: submission.name,
-            address: submission.address,
-            city: submission.city,
-            zip: submission.zip,
-            written_by: submission.written_by,
-            res_phone: submission.res_phone,
-            bus_phone: submission.bus_phone,
-            year: submission.year,
-            make: submission.make,
-            model: submission.model,
-            license_plate: submission.license_plate,
-            email: submission.email,
-          },
-        },
-        brand,
-      );
-    });
-    setEntries(getEntries(brand));
     setAccess("unlocked");
   }, [brand, list]);
 
   useEffect(() => {
-    setEntries(getEntries(brand));
+    setEntries([]);
     setExpandedSafe(null);
 
     let cancelled = false;
@@ -172,12 +151,19 @@ function RecordsPage() {
 
   const [pendingDelete, setPendingDelete] = useState<InvoiceEntry | null>(null);
 
-  const confirmRemove = () => {
+  const confirmRemove = async () => {
     if (!pendingDelete) return;
-    deleteEntry(pendingDelete.id, brand);
-    setEntries(getEntries(brand));
+    const id = pendingDelete.id;
     setPendingDelete(null);
+    setEntries((prev) => prev.filter((e) => e.id !== id));
+    try {
+      await remove({ data: { id } });
+    } catch {
+      /* ignore */
+    }
+    await importSubmissions();
   };
+
 
   return (
     <div className="min-h-screen bg-background px-2 py-6 text-paper sm:px-4">
@@ -279,6 +265,34 @@ function RecordsPage() {
             </button>
           </div>
         )}
+
+        {access === "unlocked" && legacyCount > 0 && (
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border border-paper/40 bg-paper/10 px-4 py-3">
+            <p className="font-form-condensed text-sm font-bold uppercase">
+              {legacyCount} invoice{legacyCount === 1 ? "" : "s"} were saved only on this
+              computer. Upload them so every browser sees them.
+            </p>
+            <button
+              type="button"
+              onClick={async () => {
+                try {
+                  const raw = localStorage.getItem(legacyKey);
+                  const parsed = raw ? (JSON.parse(raw) as InvoiceEntry[]) : [];
+                  await uploadLegacy({ data: { brand, entries: parsed } });
+                  localStorage.removeItem(legacyKey);
+                  setLegacyCount(0);
+                  await importSubmissions();
+                } catch {
+                  setAccessError("Upload failed. Please try again.");
+                }
+              }}
+              className="rounded-sm bg-paper px-4 py-2 font-form-condensed text-xs font-bold text-ink uppercase hover:opacity-90"
+            >
+              Upload These Invoices
+            </button>
+          </div>
+        )}
+
 
         {entries.length === 0 ? (
           <p className="mt-10 text-center font-form-condensed text-sm text-paper/70">
