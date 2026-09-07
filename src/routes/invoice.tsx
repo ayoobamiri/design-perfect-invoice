@@ -409,6 +409,13 @@ function InvoicePage() {
           >
             New Invoice
           </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-sm border border-paper/60 px-4 py-2 font-form-condensed text-xs font-bold text-paper uppercase hover:bg-paper/10"
+          >
+            Cancel
+          </button>
           <Link
             to="/records"
             search={brand === "auto" ? { brand: "auto" } : {}}
