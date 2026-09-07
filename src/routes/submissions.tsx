@@ -9,7 +9,7 @@ import {
   type CustomerSubmission,
 } from "@/lib/shop-gate.functions";
 import { PENDING_CUSTOMER_KEY } from "@/lib/pending-customer";
-import { saveEntry } from "@/lib/invoice-store";
+import { saveInvoice } from "@/lib/invoices.functions";
 
 export const Route = createFileRoute("/submissions")({
   head: () => ({
@@ -39,6 +39,8 @@ function SubmissionsPage() {
   const unlock = useServerFn(unlockShop);
   const lock = useServerFn(lockShop);
   const remove = useServerFn(deleteSubmission);
+  const addInvoice = useServerFn(saveInvoice);
+
 
   const [unlocked, setUnlocked] = useState<boolean | null>(null);
   const [rows, setRows] = useState<CustomerSubmission[]>([]);
