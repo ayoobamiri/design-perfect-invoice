@@ -126,6 +126,22 @@ function InvoicePage() {
   const storeInvoice = useServerFn(saveInvoice);
   const newInvoiceId = useServerFn(allocateInvoiceId);
   const [invoiceId, setInvoiceId] = useState("");
+  const [idManual, setIdManual] = useState(false);
+
+  /** Ask the shop account for the next number; retry a couple of times. */
+  const requestInvoiceId = async (): Promise<string> => {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const res = await newInvoiceId({ data: { brand } });
+        if (res.invoiceId) return res.invoiceId;
+      } catch {
+        /* retry below */
+      }
+      await new Promise((r) => setTimeout(r, 600));
+    }
+    return "";
+  };
+
 
   const [status, setStatus] = useState("");
   const savedIdRef = useRef<string | null>(null);
@@ -247,15 +263,16 @@ function InvoicePage() {
       const existingId = (data?.["invoice_id"] ?? "").trim();
       if (existingId && existingId.toUpperCase() !== company.prefix) {
         setInvoiceId(existingId);
+        setIdManual(false);
       } else {
         setInvoiceId("");
-        try {
-          const res = await newInvoiceId({ data: { brand } });
-          if (!cancelled && res.invoiceId) setInvoiceId(res.invoiceId);
-        } catch {
-          /* number is assigned on save if this fails */
+        const allocated = await requestInvoiceId();
+        if (!cancelled) {
+          setInvoiceId(allocated);
+          setIdManual(allocated === "");
         }
       }
+
       setStatus(entry ? `Editing saved invoice ${entry.data["invoice_id"] ?? ""}` : "");
       if (entry && print) {
         const prev = document.title;
@@ -288,9 +305,10 @@ function InvoicePage() {
   }, [edit, print, brand, isNewFlag, navigate]);
 
   const onFormInput = () => {
-    if (edit || !invoiceId) return;
+    if (edit || (!invoiceId && !idManual)) return;
     saveDraft(collectData(), brand);
   };
+
 
   /* ----- actions ----- */
 
@@ -336,15 +354,13 @@ function InvoicePage() {
     setInvoiceId("");
     setStatus("");
     void (async () => {
-      try {
-        const res = await newInvoiceId({ data: { brand } });
-        if (res.invoiceId) setInvoiceId(res.invoiceId);
-      } catch {
-        /* number is assigned on save if this fails */
-      }
+      const allocated = await requestInvoiceId();
+      setInvoiceId(allocated);
+      setIdManual(allocated === "");
     })();
     if (edit || print) navigate({ to: "/invoice", search: brand === "auto" ? { brand: "auto" } : {} });
   };
+
 
   return (
     <div className="min-h-screen bg-background px-2 py-6 sm:px-4">
@@ -405,12 +421,32 @@ function InvoicePage() {
             <input
               name="invoice_id"
               value={invoiceId}
-              readOnly
+              readOnly={!idManual}
+              onChange={(e) => setInvoiceId(e.target.value.toUpperCase())}
+              placeholder={idManual ? company.prefix : ""}
               aria-label="Invoice ID"
               className="font-form-mono w-28 bg-transparent text-[21px] font-bold outline-none"
             />
+            {idManual && (
+              <button
+                type="button"
+                onClick={() =>
+                  void (async () => {
+                    const allocated = await requestInvoiceId();
+                    if (allocated) {
+                      setInvoiceId(allocated);
+                      setIdManual(false);
+                    }
+                  })()
+                }
+                className="rounded-sm border border-ink px-2 py-1 text-[11px] font-bold uppercase print:hidden"
+              >
+                Get Number
+              </button>
+            )}
           </div>
         </div>
+
 
         {/* ===== HEADER ===== */}
         <div className="flex flex-col gap-3 lg:flex-row print:flex-row">
