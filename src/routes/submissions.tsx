@@ -99,7 +99,7 @@ function SubmissionsPage() {
   async function addToSheet(row: CustomerSubmission, brand: "smog" | "auto") {
     const data = toInvoiceData(row);
     data["date_in"] = new Date().toLocaleDateString();
-    data["invoice_id"] = brand === "auto" ? "PIA" : "PIS";
+    data["invoice_id"] = "";
     try {
       await addInvoice({ data: { brand, data } });
       setNotice(
