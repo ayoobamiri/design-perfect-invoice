@@ -405,9 +405,9 @@ function InvoicePage() {
             <input
               name="invoice_id"
               value={invoiceId}
-              onChange={(e) => setInvoiceId(e.target.value)}
+              readOnly
               aria-label="Invoice ID"
-              className="font-form-mono w-24 bg-transparent text-[21px] font-bold outline-none focus:bg-ink/5"
+              className="font-form-mono w-28 bg-transparent text-[21px] font-bold outline-none"
             />
           </div>
         </div>
