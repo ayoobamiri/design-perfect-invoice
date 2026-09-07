@@ -57,8 +57,9 @@ function RecordsPage() {
   const { brand: brandParam } = Route.useSearch();
   const brand = toBrand(brandParam);
   const search = brand === "auto" ? { brand: "auto" as const } : {};
-  const [entries, setEntries] = useState<InvoiceEntry[]>(() => getEntries(brand));
-  const list = useServerFn(listSubmissions);
+  const [entries, setEntries] = useState<InvoiceEntry[]>([]);
+  const list = useServerFn(listInvoices);
+  const remove = useServerFn(deleteInvoice);
   const unlock = useServerFn(unlockShop);
   const [access, setAccess] = useState<"loading" | "locked" | "unlocked" | "error">(
     "loading",
@@ -67,54 +68,19 @@ function RecordsPage() {
   const [accessError, setAccessError] = useState("");
 
   const importSubmissions = useCallback(async () => {
-    const res = await list({});
+    const res = await list({ data: { brand } });
     if (!res.unlocked) {
       setAccess("locked");
       return;
     }
-    const existing = new Set(
-      getEntries(brand)
-        .map((entry) => entry.data["submission_id"])
-        .filter(Boolean) as string[],
+    setEntries(
+      res.invoices.map((row) => ({ id: row.id, savedAt: row.saved_at, data: row.data })),
     );
-    const deleted = getDeletedSubmissionIds(brand);
-    const incoming = res.submissions
-      .filter((submission) => (submission.brand === "auto" ? "auto" : "smog") === brand)
-      .filter((submission) => !existing.has(submission.id))
-      .filter((submission) => !deleted.has(submission.id))
-      .reverse();
-    incoming.forEach((submission) => {
-      saveEntry(
-        {
-          id: crypto.randomUUID(),
-          savedAt: submission.created_at,
-          data: {
-            submission_id: submission.id,
-            invoice_id: BRANDS[brand].prefix,
-            date_in: new Date(submission.created_at).toLocaleDateString(),
-            name: submission.name,
-            address: submission.address,
-            city: submission.city,
-            zip: submission.zip,
-            written_by: submission.written_by,
-            res_phone: submission.res_phone,
-            bus_phone: submission.bus_phone,
-            year: submission.year,
-            make: submission.make,
-            model: submission.model,
-            license_plate: submission.license_plate,
-            email: submission.email,
-          },
-        },
-        brand,
-      );
-    });
-    setEntries(getEntries(brand));
     setAccess("unlocked");
   }, [brand, list]);
 
   useEffect(() => {
-    setEntries(getEntries(brand));
+    setEntries([]);
     setExpandedSafe(null);
 
     let cancelled = false;
@@ -170,12 +136,19 @@ function RecordsPage() {
 
   const [pendingDelete, setPendingDelete] = useState<InvoiceEntry | null>(null);
 
-  const confirmRemove = () => {
+  const confirmRemove = async () => {
     if (!pendingDelete) return;
-    deleteEntry(pendingDelete.id, brand);
-    setEntries(getEntries(brand));
+    const id = pendingDelete.id;
     setPendingDelete(null);
+    setEntries((prev) => prev.filter((e) => e.id !== id));
+    try {
+      await remove({ data: { id } });
+    } catch {
+      /* ignore */
+    }
+    await importSubmissions();
   };
+
 
   return (
     <div className="min-h-screen bg-background px-2 py-6 text-paper sm:px-4">
