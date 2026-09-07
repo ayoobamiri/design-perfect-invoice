@@ -172,7 +172,7 @@ export const saveInvoice = createServerFn({ method: "POST" })
         .update({ data: data.data, saved_at: new Date().toISOString() })
         .eq("id", data.id);
       if (error) throw new Error(error.message);
-      return { ok: true as const, id: data.id };
+      return { ok: true as const, id: data.id, invoiceNumber };
     }
 
     const { data: inserted, error } = await supabaseAdmin
@@ -181,7 +181,15 @@ export const saveInvoice = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (error) throw new Error(error.message);
-    return { ok: true as const, id: inserted.id };
+    return { ok: true as const, id: inserted.id, invoiceNumber };
+  });
+
+/** Reserve and return the next invoice number for a brand. */
+export const allocateInvoiceId = createServerFn({ method: "POST" })
+  .inputValidator((data: { brand?: string }) => ({ brand: normBrand(data?.brand) }))
+  .handler(async ({ data }) => {
+    if (!(await requireShopUnlocked())) return { invoiceId: "" };
+    return { invoiceId: await nextInvoiceId(data.brand) };
   });
 
 export const deleteInvoice = createServerFn({ method: "POST" })
