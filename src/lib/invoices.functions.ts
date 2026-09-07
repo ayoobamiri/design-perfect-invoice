@@ -184,3 +184,41 @@ export const countInvoices = createServerFn({ method: "GET" }).handler(async () 
     auto: (rows ?? []).filter((r) => r.brand === "auto").length,
   };
 });
+
+/** One-time upload of invoices that were saved only in this browser. */
+export const importLegacyInvoices = createServerFn({ method: "POST" })
+  .inputValidator(
+    (input: { brand?: string; entries: Array<{ savedAt?: string; data: Record<string, string> }> }) => ({
+      brand: normBrand(input?.brand),
+      entries: (Array.isArray(input?.entries) ? input.entries : []).slice(0, 500).map((e) => ({
+        savedAt: typeof e?.savedAt === "string" ? e.savedAt : new Date().toISOString(),
+        data: normData(e?.data),
+      })),
+    }),
+  )
+  .handler(async ({ data }) => {
+    if (!(await requireShopUnlocked())) throw new Error("Not authorized");
+    if (data.entries.length === 0) return { ok: true as const, added: 0 };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: existing, error: readError } = await supabaseAdmin
+      .from("invoices")
+      .select("data")
+      .eq("brand", data.brand)
+      .limit(1000);
+    if (readError) throw new Error(readError.message);
+    const seen = new Set(
+      (existing ?? [])
+        .map((r) => String((r.data as Record<string, unknown>)?.["submission_id"] ?? ""))
+        .filter(Boolean),
+    );
+
+    const rows = data.entries
+      .filter((e) => !e.data["submission_id"] || !seen.has(e.data["submission_id"]))
+      .map((e) => ({ brand: data.brand, saved_at: e.savedAt, data: e.data }));
+    if (rows.length === 0) return { ok: true as const, added: 0 };
+
+    const { error } = await supabaseAdmin.from("invoices").insert(rows);
+    if (error) throw new Error(error.message);
+    return { ok: true as const, added: rows.length };
+  });
