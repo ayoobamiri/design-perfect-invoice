@@ -3,7 +3,7 @@ import { StaffGate } from "@/components/StaffGate";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PENDING_CUSTOMER_KEY } from "@/lib/pending-customer";
 import { useServerFn } from "@tanstack/react-start";
-import { getInvoice, saveInvoice } from "@/lib/invoices.functions";
+import { allocateInvoiceId, getInvoice, saveInvoice } from "@/lib/invoices.functions";
 import {
   clearDraft,
   getDraft,
@@ -124,6 +124,7 @@ function InvoicePage() {
 
   const fetchInvoice = useServerFn(getInvoice);
   const storeInvoice = useServerFn(saveInvoice);
+  const newInvoiceId = useServerFn(allocateInvoiceId);
   const [invoiceId, setInvoiceId] = useState("");
 
   const [status, setStatus] = useState("");
@@ -243,7 +244,18 @@ function InvoicePage() {
         }
       }
       applyData(merged);
-      setInvoiceId(data?.["invoice_id"] || company.prefix);
+      const existingId = (data?.["invoice_id"] ?? "").trim();
+      if (existingId && existingId.toUpperCase() !== company.prefix) {
+        setInvoiceId(existingId);
+      } else {
+        setInvoiceId("");
+        try {
+          const res = await newInvoiceId({ data: { brand } });
+          if (!cancelled && res.invoiceId) setInvoiceId(res.invoiceId);
+        } catch {
+          /* number is assigned on save if this fails */
+        }
+      }
       setStatus(entry ? `Editing saved invoice ${entry.data["invoice_id"] ?? ""}` : "");
       if (entry && print) {
         const prev = document.title;
