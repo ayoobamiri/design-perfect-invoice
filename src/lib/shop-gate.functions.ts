@@ -42,6 +42,12 @@ async function isUnlocked(): Promise<boolean> {
   return session.data.unlocked === true;
 }
 
+/** Server-only helper reused by other server functions. */
+export async function requireShopUnlocked(): Promise<boolean> {
+  return isUnlocked();
+}
+
+
 export const shopStatus = createServerFn({ method: "GET" }).handler(async () => {
   return { unlocked: await isUnlocked() };
 });
