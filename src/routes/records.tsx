@@ -3,16 +3,14 @@ import { StaffGate } from "@/components/StaffGate";
 import { useServerFn } from "@tanstack/react-start";
 import { Fragment, useCallback, useEffect, useState } from "react";
 import {
-  deleteEntry,
   entriesToCsv,
-  getDeletedSubmissionIds,
-  getEntries,
-  saveEntry,
   type InvoiceEntry,
   BRANDS,
   toBrand,
 } from "@/lib/invoice-store";
-import { listSubmissions, unlockShop } from "@/lib/shop-gate.functions";
+import { deleteInvoice, listInvoices } from "@/lib/invoices.functions";
+import { unlockShop } from "@/lib/shop-gate.functions";
+
 
 export const Route = createFileRoute("/records")({
   validateSearch: (s: Record<string, unknown>): { brand?: string } => ({
