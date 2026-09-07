@@ -1,7 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { StaffGate } from "@/components/StaffGate";
-import { getEntries } from "@/lib/invoice-store";
+import { useServerFn } from "@tanstack/react-start";
+import { countInvoices } from "@/lib/invoices.functions";
 import { useEffect, useState } from "react";
+
 
 export const Route = createFileRoute("/staff")({
   head: () => ({
@@ -32,10 +34,19 @@ export const Route = createFileRoute("/staff")({
 function StaffPage() {
   const [smog, setSmog] = useState({ id: "PIS", count: 0 });
   const [auto, setAuto] = useState({ id: "PIA", count: 0 });
+  const counts = useServerFn(countInvoices);
   useEffect(() => {
-    setSmog({ id: "PIS", count: getEntries("smog").length });
-    setAuto({ id: "PIA", count: getEntries("auto").length });
-  }, []);
+    void (async () => {
+      try {
+        const res = await counts({});
+        setSmog({ id: "PIS", count: res.smog });
+        setAuto({ id: "PIA", count: res.auto });
+      } catch {
+        /* ignore */
+      }
+    })();
+  }, [counts]);
+
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-background px-4 py-12">
