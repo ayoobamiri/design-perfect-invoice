@@ -263,15 +263,16 @@ function InvoicePage() {
       const existingId = (data?.["invoice_id"] ?? "").trim();
       if (existingId && existingId.toUpperCase() !== company.prefix) {
         setInvoiceId(existingId);
+        setIdManual(false);
       } else {
         setInvoiceId("");
-        try {
-          const res = await newInvoiceId({ data: { brand } });
-          if (!cancelled && res.invoiceId) setInvoiceId(res.invoiceId);
-        } catch {
-          /* number is assigned on save if this fails */
+        const allocated = await requestInvoiceId();
+        if (!cancelled) {
+          setInvoiceId(allocated);
+          setIdManual(allocated === "");
         }
       }
+
       setStatus(entry ? `Editing saved invoice ${entry.data["invoice_id"] ?? ""}` : "");
       if (entry && print) {
         const prev = document.title;
