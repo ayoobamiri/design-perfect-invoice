@@ -207,49 +207,68 @@ function InvoicePage() {
     if (isNew) {
       clearDraft(brand);
     }
-    const entry = edit ? getEntry(edit, brand) : undefined;
-    const data = entry?.data ?? (edit || isNew ? null : getDraft(brand));
-    savedIdRef.current = entry ? entry.id : null;
-    let merged = data ?? {};
-    if (!edit) {
-      const pending = sessionStorage.getItem(PENDING_CUSTOMER_KEY);
-      if (pending) {
-        sessionStorage.removeItem(PENDING_CUSTOMER_KEY);
+    let cancelled = false;
+    let printTimer: ReturnType<typeof setTimeout> | undefined;
+
+    (async () => {
+      let entry: { id: string; data: Record<string, string> } | null = null;
+      if (edit) {
         try {
-          pendingCustomerRef.current = JSON.parse(pending) as Record<string, string>;
+          const res = await fetchInvoice({ data: { id: edit } });
+          if (res.invoice) entry = { id: res.invoice.id, data: res.invoice.data };
         } catch {
-          /* ignore malformed pending customer data */
+          /* ignore */
         }
       }
-      if (pendingCustomerRef.current) {
-        merged = { ...merged, ...pendingCustomerRef.current };
+      if (cancelled) return;
+
+      const data = entry?.data ?? (edit || isNew ? null : getDraft(brand));
+      savedIdRef.current = entry ? entry.id : null;
+      let merged = data ?? {};
+      if (!edit) {
+        const pending = sessionStorage.getItem(PENDING_CUSTOMER_KEY);
+        if (pending) {
+          sessionStorage.removeItem(PENDING_CUSTOMER_KEY);
+          try {
+            pendingCustomerRef.current = JSON.parse(pending) as Record<string, string>;
+          } catch {
+            /* ignore malformed pending customer data */
+          }
+        }
+        if (pendingCustomerRef.current) {
+          merged = { ...merged, ...pendingCustomerRef.current };
+        }
       }
-    }
-    applyData(merged);
-    setInvoiceId(data?.["invoice_id"] || company.prefix);
-    setStatus(entry ? `Editing saved invoice ${entry.data["invoice_id"] ?? ""}` : "");
-    if (entry && print) {
-      const prev = document.title;
-      document.title = invoiceFileName(entry.data);
-      const t = setTimeout(() => {
-        window.print();
-        setTimeout(() => {
-          document.title = prev;
-        }, 1000);
-      }, 300);
-      return () => clearTimeout(t);
-    }
-    if (isNew) {
-      // Keep any customer check-in data across the URL cleanup below.
-      if (Object.keys(merged).length > 0) saveDraft(merged, brand);
-      // Remove the ?new=1 flag after the first clean load so refreshes keep the draft.
-      navigate({
-        to: "/invoice",
-        search: brand === "auto" ? { brand: "auto" } : {},
-        replace: true,
-      });
-    }
-    return undefined;
+      applyData(merged);
+      setInvoiceId(data?.["invoice_id"] || company.prefix);
+      setStatus(entry ? `Editing saved invoice ${entry.data["invoice_id"] ?? ""}` : "");
+      if (entry && print) {
+        const prev = document.title;
+        document.title = invoiceFileName(entry.data);
+        printTimer = setTimeout(() => {
+          window.print();
+          setTimeout(() => {
+            document.title = prev;
+          }, 1000);
+        }, 300);
+        return;
+      }
+      if (isNew) {
+        // Keep any customer check-in data across the URL cleanup below.
+        if (Object.keys(merged).length > 0) saveDraft(merged, brand);
+        // Remove the ?new=1 flag after the first clean load so refreshes keep the draft.
+        navigate({
+          to: "/invoice",
+          search: brand === "auto" ? { brand: "auto" } : {},
+          replace: true,
+        });
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+      if (printTimer) clearTimeout(printTimer);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [edit, print, brand, isNewFlag, navigate]);
 
@@ -260,7 +279,7 @@ function InvoicePage() {
 
   /* ----- actions ----- */
 
-  const persist = () => {
+  const persist = async () => {
     const data = collectData();
     const id = (data["invoice_id"] ?? "").trim();
     if (!id || id.toUpperCase() === company.prefix) {
@@ -268,33 +287,34 @@ function InvoicePage() {
       window.alert("Please enter an invoice number.");
       return undefined;
     }
-    const clash = getEntries(brand).some(
-      (e) =>
-        e.id !== savedIdRef.current &&
-        (e.data["invoice_id"] ?? "").trim().toUpperCase() === id.toUpperCase(),
-    );
-    if (clash) {
+    let res;
+    try {
+      res = await storeInvoice({
+        data: { ...(savedIdRef.current ? { id: savedIdRef.current } : {}), brand, data },
+      });
+    } catch {
+      setStatus("Could not save. Please check your connection and try again.");
+      window.alert("Could not save this invoice. Please try again.");
+      return undefined;
+    }
+    if (!res.ok) {
       setStatus(`Invoice number ${id} already used.`);
       window.alert(`You already used this number (${id}). Please enter a different one.`);
       return undefined;
     }
-    if (savedIdRef.current) {
-      updateEntry(savedIdRef.current, data, brand);
-      setStatus(`Updated ${data["invoice_id"]} at ${new Date().toLocaleTimeString()}`);
-    } else {
-      const rowId = crypto.randomUUID();
-      saveEntry({ id: rowId, savedAt: new Date().toISOString(), data }, brand);
-      savedIdRef.current = rowId;
-      commitInvoiceId(data["invoice_id"] ?? "", brand);
-      setStatus(`Saved ${data["invoice_id"]} at ${new Date().toLocaleTimeString()}`);
-    }
+    const wasUpdate = Boolean(savedIdRef.current);
+    savedIdRef.current = res.id ?? savedIdRef.current;
+    setStatus(
+      `${wasUpdate ? "Updated" : "Saved"} ${data["invoice_id"]} at ${new Date().toLocaleTimeString()}`,
+    );
     if (!edit) saveDraft(data, brand);
     return data;
   };
 
   const onSaveOnly = () => {
-    persist();
+    void persist();
   };
+
 
   const onNewInvoice = () => {
     clearDraft(brand);
