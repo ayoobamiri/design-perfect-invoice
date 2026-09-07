@@ -96,22 +96,20 @@ function SubmissionsPage() {
     });
   }
 
-  function addToSheet(row: CustomerSubmission, brand: "smog" | "auto") {
+  async function addToSheet(row: CustomerSubmission, brand: "smog" | "auto") {
     const data = toInvoiceData(row);
     data["date_in"] = new Date().toLocaleDateString();
     data["invoice_id"] = brand === "auto" ? "PIA" : "PIS";
-    saveEntry(
-      {
-        id: crypto.randomUUID(),
-        savedAt: new Date().toISOString(),
-        data,
-      },
-      brand,
-    );
-    setNotice(
-      `${row.name || "Customer"} added to the ${brand === "auto" ? "Automotive" : "Smog"} sheet.`,
-    );
+    try {
+      await addInvoice({ data: { brand, data } });
+      setNotice(
+        `${row.name || "Customer"} added to the ${brand === "auto" ? "Automotive" : "Smog"} sheet.`,
+      );
+    } catch {
+      setNotice("Could not add to the sheet. Please try again.");
+    }
   }
+
 
   if (unlocked === null) {
     return (
