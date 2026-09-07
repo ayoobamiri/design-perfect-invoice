@@ -3,7 +3,7 @@ import { StaffGate } from "@/components/StaffGate";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PENDING_CUSTOMER_KEY } from "@/lib/pending-customer";
 import { useServerFn } from "@tanstack/react-start";
-import { allocateInvoiceId, getInvoice, saveInvoice } from "@/lib/invoices.functions";
+import { allocateInvoiceId, deleteInvoice, getInvoice, saveInvoice } from "@/lib/invoices.functions";
 import {
   clearDraft,
   getDraft,
@@ -125,6 +125,7 @@ function InvoicePage() {
   const fetchInvoice = useServerFn(getInvoice);
   const storeInvoice = useServerFn(saveInvoice);
   const newInvoiceId = useServerFn(allocateInvoiceId);
+  const removeInvoice = useServerFn(deleteInvoice);
   const [invoiceId, setInvoiceId] = useState("");
   const [idManual, setIdManual] = useState(false);
 
@@ -361,6 +362,27 @@ function InvoicePage() {
     if (edit || print) navigate({ to: "/invoice", search: brand === "auto" ? { brand: "auto" } : {} });
   };
 
+  const onCancel = () => {
+    if (!window.confirm("Do you want to cancel this invoice?")) return;
+    void (async () => {
+      const savedId = savedIdRef.current;
+      if (savedId) {
+        try {
+          await removeInvoice({ data: { id: savedId } });
+        } catch {
+          /* ignore — the form is cleared either way */
+        }
+      }
+      clearDraft(brand);
+      savedIdRef.current = null;
+      applyData({});
+      setInvoiceId("");
+      setStatus("");
+      navigate({ to: "/staff", search: {} });
+    })();
+  };
+
+
 
   return (
     <div className="min-h-screen bg-background px-2 py-6 sm:px-4">
@@ -386,6 +408,13 @@ function InvoicePage() {
             className="rounded-sm border border-paper/60 px-4 py-2 font-form-condensed text-xs font-bold text-paper uppercase hover:bg-paper/10"
           >
             New Invoice
+          </button>
+          <button
+            type="button"
+            onClick={onCancel}
+            className="rounded-sm border border-paper/60 px-4 py-2 font-form-condensed text-xs font-bold text-paper uppercase hover:bg-paper/10"
+          >
+            Cancel
           </button>
           <Link
             to="/records"
