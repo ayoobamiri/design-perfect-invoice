@@ -167,6 +167,18 @@ function CustomerPage() {
             >
               {state === "saving" ? "Submitting…" : "Submit"}
             </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                if (!window.confirm("Do you want to cancel this form?")) return;
+                setValues({});
+                setState("idle");
+              }}
+              className="w-full rounded-sm border-2 border-ink bg-paper px-6 py-6 text-2xl font-bold tracking-wide text-ink uppercase active:bg-ink/10"
+            >
+              Cancel
+            </button>
           </form>
         </div>
       </div>
