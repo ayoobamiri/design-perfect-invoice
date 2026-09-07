@@ -28,6 +28,14 @@ function normData(v: unknown): Record<string, string> {
   return out;
 }
 
+/** Reserve the next unique invoice number for a brand (atomic, per-year). */
+async function nextInvoiceId(brand: "smog" | "auto"): Promise<string> {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data, error } = await supabaseAdmin.rpc("next_invoice_id", { _brand: brand });
+  if (error) throw new Error(error.message);
+  return String(data ?? "");
+}
+
 /** Pull new customer check-ins into the shared invoice sheet (once each). */
 async function importCheckIns(brand: "smog" | "auto") {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -41,13 +49,16 @@ async function importCheckIns(brand: "smog" | "auto") {
   if (error) throw new Error(error.message);
   if (!subs || subs.length === 0) return;
 
-  const rows = subs.map((s) => ({
+  const ids: string[] = [];
+  for (const _s of subs) ids.push(await nextInvoiceId(brand));
+
+  const rows = subs.map((s, i) => ({
     brand,
     submission_id: s.id,
     saved_at: s.created_at,
     data: {
       submission_id: s.id,
-      invoice_id: brand === "auto" ? "PIA" : "PIS",
+      invoice_id: ids[i] ?? "",
       date_in: new Date(s.created_at).toLocaleDateString("en-US"),
       name: s.name,
       address: s.address,
