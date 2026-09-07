@@ -362,6 +362,27 @@ function InvoicePage() {
     if (edit || print) navigate({ to: "/invoice", search: brand === "auto" ? { brand: "auto" } : {} });
   };
 
+  const onCancel = () => {
+    if (!window.confirm("Do you want to cancel this invoice?")) return;
+    void (async () => {
+      const savedId = savedIdRef.current;
+      if (savedId) {
+        try {
+          await removeInvoice({ data: { id: savedId } });
+        } catch {
+          /* ignore — the form is cleared either way */
+        }
+      }
+      clearDraft(brand);
+      savedIdRef.current = null;
+      applyData({});
+      setInvoiceId("");
+      setStatus("");
+      navigate({ to: "/staff", search: {} });
+    })();
+  };
+
+
 
   return (
     <div className="min-h-screen bg-background px-2 py-6 sm:px-4">
