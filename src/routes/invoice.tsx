@@ -3,7 +3,7 @@ import { StaffGate } from "@/components/StaffGate";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PENDING_CUSTOMER_KEY } from "@/lib/pending-customer";
 import { useServerFn } from "@tanstack/react-start";
-import { allocateInvoiceId, getInvoice, saveInvoice } from "@/lib/invoices.functions";
+import { allocateInvoiceId, deleteInvoice, getInvoice, saveInvoice } from "@/lib/invoices.functions";
 import {
   clearDraft,
   getDraft,
