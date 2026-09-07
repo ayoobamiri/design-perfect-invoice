@@ -2,19 +2,17 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { StaffGate } from "@/components/StaffGate";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PENDING_CUSTOMER_KEY } from "@/lib/pending-customer";
+import { useServerFn } from "@tanstack/react-start";
+import { getInvoice, saveInvoice } from "@/lib/invoices.functions";
 import {
   clearDraft,
-  commitInvoiceId,
   getDraft,
-  getEntry,
   invoiceFileName,
-  getEntries,
   saveDraft,
-  saveEntry,
-  updateEntry,
   BRANDS,
   toBrand,
 } from "@/lib/invoice-store";
+
 
 export const Route = createFileRoute("/invoice")({
   validateSearch: (
