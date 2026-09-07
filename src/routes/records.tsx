@@ -8,7 +8,7 @@ import {
   BRANDS,
   toBrand,
 } from "@/lib/invoice-store";
-import { deleteInvoice, listInvoices } from "@/lib/invoices.functions";
+import { deleteInvoice, importLegacyInvoices, listInvoices } from "@/lib/invoices.functions";
 import { unlockShop } from "@/lib/shop-gate.functions";
 
 
