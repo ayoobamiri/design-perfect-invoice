@@ -60,12 +60,27 @@ function RecordsPage() {
   const [entries, setEntries] = useState<InvoiceEntry[]>([]);
   const list = useServerFn(listInvoices);
   const remove = useServerFn(deleteInvoice);
+  const uploadLegacy = useServerFn(importLegacyInvoices);
   const unlock = useServerFn(unlockShop);
   const [access, setAccess] = useState<"loading" | "locked" | "unlocked" | "error">(
     "loading",
   );
   const [passcode, setPasscode] = useState("");
   const [accessError, setAccessError] = useState("");
+  const [legacyCount, setLegacyCount] = useState(0);
+
+  const legacyKey = brand === "auto" ? "power-inn-auto-entries" : "power-inn-smog-entries";
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(legacyKey);
+      const parsed = raw ? (JSON.parse(raw) as InvoiceEntry[]) : [];
+      setLegacyCount(Array.isArray(parsed) ? parsed.length : 0);
+    } catch {
+      setLegacyCount(0);
+    }
+  }, [legacyKey]);
+
 
   const importSubmissions = useCallback(async () => {
     const res = await list({ data: { brand } });
