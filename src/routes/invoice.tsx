@@ -126,6 +126,22 @@ function InvoicePage() {
   const storeInvoice = useServerFn(saveInvoice);
   const newInvoiceId = useServerFn(allocateInvoiceId);
   const [invoiceId, setInvoiceId] = useState("");
+  const [idManual, setIdManual] = useState(false);
+
+  /** Ask the shop account for the next number; retry a couple of times. */
+  const requestInvoiceId = async (): Promise<string> => {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const res = await newInvoiceId({ data: { brand } });
+        if (res.invoiceId) return res.invoiceId;
+      } catch {
+        /* retry below */
+      }
+      await new Promise((r) => setTimeout(r, 600));
+    }
+    return "";
+  };
+
 
   const [status, setStatus] = useState("");
   const savedIdRef = useRef<string | null>(null);
