@@ -296,12 +296,6 @@ function InvoicePage() {
 
   const persist = async () => {
     const data = collectData();
-    const id = (data["invoice_id"] ?? "").trim();
-    if (!id || id.toUpperCase() === company.prefix) {
-      setStatus("Please enter an invoice number.");
-      window.alert("Please enter an invoice number.");
-      return undefined;
-    }
     let res;
     try {
       res = await storeInvoice({
@@ -313,12 +307,16 @@ function InvoicePage() {
       return undefined;
     }
     if (!res.ok) {
-      setStatus(`Invoice number ${id} already used.`);
-      window.alert(`You already used this number (${id}). Please enter a different one.`);
+      setStatus("Could not save this invoice.");
+      window.alert("Could not save this invoice. Please try again.");
       return undefined;
     }
     const wasUpdate = Boolean(savedIdRef.current);
     savedIdRef.current = res.id ?? savedIdRef.current;
+    if (res.invoiceNumber) {
+      data["invoice_id"] = res.invoiceNumber;
+      setInvoiceId(res.invoiceNumber);
+    }
     setStatus(
       `${wasUpdate ? "Updated" : "Saved"} ${data["invoice_id"]} at ${new Date().toLocaleTimeString()}`,
     );
@@ -335,8 +333,16 @@ function InvoicePage() {
     clearDraft(brand);
     savedIdRef.current = null;
     applyData({});
-    setInvoiceId(company.prefix);
+    setInvoiceId("");
     setStatus("");
+    void (async () => {
+      try {
+        const res = await newInvoiceId({ data: { brand } });
+        if (res.invoiceId) setInvoiceId(res.invoiceId);
+      } catch {
+        /* number is assigned on save if this fails */
+      }
+    })();
     if (edit || print) navigate({ to: "/invoice", search: brand === "auto" ? { brand: "auto" } : {} });
   };
 
