@@ -3,7 +3,7 @@ import { StaffGate } from "@/components/StaffGate";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { PENDING_CUSTOMER_KEY } from "@/lib/pending-customer";
 import { useServerFn } from "@tanstack/react-start";
-import { allocateInvoiceId, deleteInvoice, getInvoice, saveInvoice } from "@/lib/invoices.functions";
+import { allocateInvoiceId, deleteInvoice, getInvoice, releaseInvoiceId, saveInvoice } from "@/lib/invoices.functions";
 import {
   clearDraft,
   getDraft,
@@ -126,6 +126,7 @@ function InvoicePage() {
   const storeInvoice = useServerFn(saveInvoice);
   const newInvoiceId = useServerFn(allocateInvoiceId);
   const removeInvoice = useServerFn(deleteInvoice);
+  const freeInvoiceId = useServerFn(releaseInvoiceId);
   const [invoiceId, setInvoiceId] = useState("");
   const [idManual, setIdManual] = useState(false);
 
