@@ -373,6 +373,14 @@ function InvoicePage() {
           /* ignore — the form is cleared either way */
         }
       }
+      const freed = invoiceId.trim();
+      if (freed) {
+        try {
+          await freeInvoiceId({ data: { brand, invoiceId: freed } });
+        } catch {
+          /* ignore — cancelling still clears the form */
+        }
+      }
       clearDraft(brand);
       savedIdRef.current = null;
       applyData({});
