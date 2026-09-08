@@ -216,9 +216,13 @@
   .invoice-sheet {
     max-width: none !important;
     width: 1100px !important;
-    zoom: 0.48;
+    transform: scale(0.52);
+    transform-origin: top left;
+    margin: 0 !important;
+    margin-bottom: -960px !important;
     padding: 4px !important;
   }
+
 
   body {
     background: white;
