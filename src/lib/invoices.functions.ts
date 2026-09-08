@@ -192,6 +192,24 @@ export const allocateInvoiceId = createServerFn({ method: "POST" })
     return { invoiceId: await nextInvoiceId(data.brand) };
   });
 
+/** Give an unused invoice number back so the next invoice reuses it. */
+export const releaseInvoiceId = createServerFn({ method: "POST" })
+  .inputValidator((data: { brand?: string; invoiceId: string }) => ({
+    brand: normBrand(data?.brand),
+    invoiceId: String(data?.invoiceId ?? ""),
+  }))
+  .handler(async ({ data }) => {
+    if (!(await requireShopUnlocked())) return { ok: false as const };
+    if (!data.invoiceId.trim()) return { ok: true as const };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.rpc("release_invoice_id", {
+      _brand: data.brand,
+      _invoice_id: data.invoiceId,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true as const };
+  });
+
 export const deleteInvoice = createServerFn({ method: "POST" })
   .inputValidator((data: { id: string }) => ({ id: String(data?.id ?? "") }))
   .handler(async ({ data }) => {
