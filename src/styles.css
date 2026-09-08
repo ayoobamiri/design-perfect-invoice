@@ -216,7 +216,7 @@
   .invoice-sheet {
     max-width: none !important;
     width: 1100px !important;
-    transform: scale(0.70);
+    transform: scale(0.68);
     transform-origin: top left;
     margin: 0 !important;
     margin-bottom: -1030px !important;
@@ -229,7 +229,7 @@
   .invoice-sheet .mt-3 { margin-top: 6px !important; }
   .invoice-sheet .mb-2 { margin-bottom: 4px !important; }
   .invoice-sheet h1 {
-    font-size: 30px !important;
+    font-size: 28px !important;
   }
   .invoice-sheet .field-wrap {
     padding: 0 6px 1px !important;
