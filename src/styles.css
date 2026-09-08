@@ -216,12 +216,34 @@
   .invoice-sheet {
     max-width: none !important;
     width: 1100px !important;
-    transform: scale(0.515);
+    transform: scale(0.715);
     transform-origin: top left;
     margin: 0 !important;
     margin-bottom: -1030px !important;
-    padding: 4px !important;
+    padding: 6px !important;
   }
+  /* Print-only vertical compression so the sheet fills the page width
+     while still fitting on one portrait page. Fonts stay the same. */
+  .invoice-sheet .gap-3 { gap: 6px !important; }
+  .invoice-sheet .mt-2 { margin-top: 4px !important; }
+  .invoice-sheet .mt-3 { margin-top: 6px !important; }
+  .invoice-sheet .mb-2 { margin-bottom: 4px !important; }
+  .invoice-sheet h1 {
+    font-size: 30px !important;
+  }
+  .invoice-sheet .field-wrap {
+    padding: 0 6px 1px !important;
+  }
+  .invoice-sheet .px-1\.5,
+  .invoice-sheet .px-2,
+  .invoice-sheet .px-3 {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+  .invoice-sheet .py-1 { padding-top: 1px !important; padding-bottom: 1px !important; }
+  .invoice-sheet .h-\[28px\] { height: 20px !important; }
+  .invoice-sheet .leading-snug { line-height: 1.15 !important; }
+  .invoice-sheet .leading-tight { line-height: 1.1 !important; }
 
 
   body {
