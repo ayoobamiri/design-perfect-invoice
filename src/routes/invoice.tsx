@@ -263,15 +263,21 @@ function InvoicePage() {
       }
       applyData(merged);
       const existingId = (data?.["invoice_id"] ?? "").trim();
+      let currentId = "";
       if (existingId && existingId.toUpperCase() !== company.prefix) {
+        currentId = existingId;
         setInvoiceId(existingId);
         setIdManual(false);
       } else {
         setInvoiceId("");
         const allocated = await requestInvoiceId();
         if (!cancelled) {
+          currentId = allocated;
           setInvoiceId(allocated);
           setIdManual(allocated === "");
+          // Remember the reserved number right away so a page refresh reuses
+          // it instead of burning the next one.
+          if (allocated && !edit) saveDraft({ ...merged, invoice_id: allocated }, brand);
         }
       }
 
@@ -289,7 +295,8 @@ function InvoicePage() {
       }
       if (isNew) {
         // Keep any customer check-in data across the URL cleanup below.
-        if (Object.keys(merged).length > 0) saveDraft(merged, brand);
+        const keep = { ...merged, ...(currentId ? { invoice_id: currentId } : {}) };
+        if (Object.keys(keep).length > 0) saveDraft(keep, brand);
         // Remove the ?new=1 flag after the first clean load so refreshes keep the draft.
         navigate({
           to: "/invoice",
@@ -359,6 +366,7 @@ function InvoicePage() {
       const allocated = await requestInvoiceId();
       setInvoiceId(allocated);
       setIdManual(allocated === "");
+      if (allocated) saveDraft({ invoice_id: allocated }, brand);
     })();
     if (edit || print) navigate({ to: "/invoice", search: brand === "auto" ? { brand: "auto" } : {} });
   };
