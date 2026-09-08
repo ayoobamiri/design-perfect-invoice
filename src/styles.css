@@ -229,6 +229,8 @@
   }
   .min-h-screen {
     background: white !important;
+    height: 1020px !important;
+    overflow: hidden !important;
     min-height: 0 !important;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
