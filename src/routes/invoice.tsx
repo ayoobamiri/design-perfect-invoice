@@ -366,6 +366,7 @@ function InvoicePage() {
       const allocated = await requestInvoiceId();
       setInvoiceId(allocated);
       setIdManual(allocated === "");
+      if (allocated) saveDraft({ invoice_id: allocated }, brand);
     })();
     if (edit || print) navigate({ to: "/invoice", search: brand === "auto" ? { brand: "auto" } : {} });
   };
