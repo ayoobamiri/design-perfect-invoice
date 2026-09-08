@@ -216,10 +216,10 @@
   .invoice-sheet {
     max-width: none !important;
     width: 1100px !important;
-    transform: scale(0.52);
+    transform: scale(0.485);
     transform-origin: top left;
     margin: 0 !important;
-    margin-bottom: -960px !important;
+    margin-bottom: -1030px !important;
     padding: 4px !important;
   }
 
@@ -228,6 +228,7 @@
     background: white;
   }
   .min-h-screen {
+    background: white !important;
     min-height: 0 !important;
     padding-top: 0 !important;
     padding-bottom: 0 !important;
