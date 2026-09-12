@@ -475,7 +475,7 @@ function RecordsPage() {
                     </tr>
                     {expanded === e.id && (
                       <tr key={`${e.id}-detail`} className="border-b border-paper/15 bg-paper/5">
-                        <td colSpan={COLS.length + 2} className="px-3 py-2">
+                        <td colSpan={COLS.length + 3} className="px-3 py-2">
                           <div className="grid grid-cols-2 gap-x-6 gap-y-1 sm:grid-cols-3 lg:grid-cols-4">
                             {Object.entries(e.data)
                               .filter(([, v]) => v)
