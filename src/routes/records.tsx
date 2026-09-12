@@ -150,12 +150,35 @@ function RecordsPage() {
   };
 
   const [pendingDelete, setPendingDelete] = useState<InvoiceEntry | null>(null);
+  const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState<string[]>([]);
+  const [pendingBulkDelete, setPendingBulkDelete] = useState(false);
+
+  const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const visible = entries.filter((e) => {
+    if (terms.length === 0) return true;
+    const hay = [e.savedAt, ...Object.values(e.data)].join(" ").toLowerCase();
+    return terms.every((t) => hay.includes(t));
+  });
+  const visibleIds = visible.map((e) => e.id);
+  const selectedVisible = visibleIds.filter((id) => selected.includes(id));
+  const allVisibleSelected = visibleIds.length > 0 && selectedVisible.length === visibleIds.length;
+
+  const toggleOne = (id: string) =>
+    setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  const toggleAll = () =>
+    setSelected((prev) =>
+      allVisibleSelected
+        ? prev.filter((id) => !visibleIds.includes(id))
+        : Array.from(new Set([...prev, ...visibleIds])),
+    );
 
   const confirmRemove = async () => {
     if (!pendingDelete) return;
     const id = pendingDelete.id;
     setPendingDelete(null);
     setEntries((prev) => prev.filter((e) => e.id !== id));
+    setSelected((prev) => prev.filter((x) => x !== id));
     try {
       await remove({ data: { id } });
     } catch {
@@ -163,6 +186,35 @@ function RecordsPage() {
     }
     await importSubmissions();
   };
+
+  const confirmBulkRemove = async () => {
+    const ids = [...selectedVisible];
+    setPendingBulkDelete(false);
+    setEntries((prev) => prev.filter((e) => !ids.includes(e.id)));
+    setSelected((prev) => prev.filter((x) => !ids.includes(x)));
+    for (const id of ids) {
+      try {
+        await remove({ data: { id } });
+      } catch {
+        /* ignore */
+      }
+    }
+    await importSubmissions();
+  };
+
+  const downloadSelectedCsv = () => {
+    const rows = entries.filter((e) => selectedVisible.includes(e.id));
+    if (rows.length === 0) return;
+    const blob = new Blob([entriesToCsv(rows)], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${brand === "auto" ? "power-inn-automotive" : "power-inn-smog"}-selected-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+
 
 
   return (
@@ -293,18 +345,72 @@ function RecordsPage() {
           </div>
         )}
 
+        {entries.length > 0 && (
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <input
+              type="search"
+              value={query}
+              onChange={(ev) => setQuery(ev.target.value)}
+              placeholder="Search invoice ID, name, phone, plate, VIN…"
+              className="min-w-[260px] flex-1 rounded-sm border-2 border-paper/60 bg-background px-3 py-2 font-form-mono text-sm text-paper outline-none placeholder:text-paper/50"
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                className="rounded-sm border border-paper/60 px-4 py-2 font-form-condensed text-xs font-bold uppercase hover:bg-paper/10"
+              >
+                Clear
+              </button>
+            )}
+            <span className="font-form-condensed text-xs font-bold uppercase opacity-70">
+              {visible.length} of {entries.length} shown
+              {selectedVisible.length > 0 ? ` · ${selectedVisible.length} selected` : ""}
+            </span>
+            <button
+              type="button"
+              onClick={downloadSelectedCsv}
+              disabled={selectedVisible.length === 0}
+              className="rounded-sm bg-paper px-4 py-2 font-form-condensed text-xs font-bold text-ink uppercase hover:opacity-90 disabled:opacity-40"
+            >
+              Save Selected (CSV)
+            </button>
+            <button
+              type="button"
+              onClick={() => setPendingBulkDelete(true)}
+              disabled={selectedVisible.length === 0}
+              className="rounded-sm border border-paper/60 px-4 py-2 font-form-condensed text-xs font-bold uppercase hover:bg-paper/10 disabled:opacity-40"
+            >
+              Delete Selected
+            </button>
+          </div>
+        )}
 
-        {entries.length === 0 ? (
+        {visible.length === 0 ? (
           <p className="mt-10 text-center font-form-condensed text-sm text-paper/70">
             {access === "locked"
               ? "Unlock above to receive customer check-ins."
-              : "No entries yet — customer check-ins will appear here automatically."}
+              : entries.length > 0
+                ? "No invoices match your search."
+                : "No entries yet — customer check-ins will appear here automatically."}
           </p>
         ) : (
           <div className="mt-4 overflow-x-auto rounded-sm border border-paper/30">
             <table className="w-full text-left font-form-mono text-[11px]">
               <thead>
                 <tr className="border-b border-paper/30 bg-paper/10">
+                  <th className="px-2 py-1.5">
+                    <label className="flex items-center gap-1 font-form-condensed font-bold uppercase">
+                      <input
+                        type="checkbox"
+                        checked={allVisibleSelected}
+                        onChange={toggleAll}
+                        className="h-4 w-4 accent-paper"
+                        aria-label="Select all invoices"
+                      />
+                      All
+                    </label>
+                  </th>
                   <th className="px-2 py-1.5 font-form-condensed font-bold uppercase">Saved</th>
                   {COLS.map(([k, label]) => (
                     <th key={k} className="px-2 py-1.5 font-form-condensed font-bold uppercase">
@@ -315,12 +421,21 @@ function RecordsPage() {
                 </tr>
               </thead>
               <tbody>
-                {entries.map((e) => (
+                {visible.map((e) => (
                   <Fragment key={e.id}>
                     <tr
                       onClick={() => setExpanded(expanded === e.id ? null : e.id)}
                       className="cursor-pointer border-b border-paper/15 hover:bg-paper/5"
                     >
+                      <td className="px-2 py-1.5" onClick={(ev) => ev.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={selected.includes(e.id)}
+                          onChange={() => toggleOne(e.id)}
+                          className="h-4 w-4 accent-paper"
+                          aria-label={`Select invoice ${e.data["invoice_id"] || e.id}`}
+                        />
+                      </td>
                       <td className="px-2 py-1.5 whitespace-nowrap">
                         {new Date(e.savedAt).toLocaleString()}
                       </td>
@@ -360,7 +475,7 @@ function RecordsPage() {
                     </tr>
                     {expanded === e.id && (
                       <tr key={`${e.id}-detail`} className="border-b border-paper/15 bg-paper/5">
-                        <td colSpan={COLS.length + 2} className="px-3 py-2">
+                        <td colSpan={COLS.length + 3} className="px-3 py-2">
                           <div className="grid grid-cols-2 gap-x-6 gap-y-1 sm:grid-cols-3 lg:grid-cols-4">
                             {Object.entries(e.data)
                               .filter(([, v]) => v)
@@ -383,6 +498,46 @@ function RecordsPage() {
           </div>
         )}
       </div>
+
+      {pendingBulkDelete && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-ink/70 px-4"
+          onClick={() => setPendingBulkDelete(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-sm border border-paper/40 bg-background p-6 text-paper"
+            onClick={(ev) => ev.stopPropagation()}
+          >
+            <h2
+              className="text-lg font-bold tracking-tight"
+              style={{ fontFamily: "var(--font-form-display)" }}
+            >
+              Do you want to delete these invoices?
+            </h2>
+            <p className="mt-2 font-form-mono text-sm text-paper/80">
+              {selectedVisible.length} invoice{selectedVisible.length === 1 ? "" : "s"} selected.
+              <br />
+              This cannot be undone.
+            </p>
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setPendingBulkDelete(false)}
+                className="rounded-sm border border-paper/60 px-6 py-2 font-form-condensed text-sm font-bold uppercase hover:bg-paper/10"
+              >
+                No
+              </button>
+              <button
+                type="button"
+                onClick={confirmBulkRemove}
+                className="rounded-sm bg-paper px-6 py-2 font-form-condensed text-sm font-bold text-ink uppercase hover:opacity-90"
+              >
+                Yes
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {pendingDelete && (
         <div
