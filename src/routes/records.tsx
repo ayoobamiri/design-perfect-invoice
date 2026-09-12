@@ -345,18 +345,72 @@ function RecordsPage() {
           </div>
         )}
 
+        {entries.length > 0 && (
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <input
+              type="search"
+              value={query}
+              onChange={(ev) => setQuery(ev.target.value)}
+              placeholder="Search invoice ID, name, phone, plate, VIN…"
+              className="min-w-[260px] flex-1 rounded-sm border-2 border-paper/60 bg-background px-3 py-2 font-form-mono text-sm text-paper outline-none placeholder:text-paper/50"
+            />
+            {query && (
+              <button
+                type="button"
+                onClick={() => setQuery("")}
+                className="rounded-sm border border-paper/60 px-4 py-2 font-form-condensed text-xs font-bold uppercase hover:bg-paper/10"
+              >
+                Clear
+              </button>
+            )}
+            <span className="font-form-condensed text-xs font-bold uppercase opacity-70">
+              {visible.length} of {entries.length} shown
+              {selectedVisible.length > 0 ? ` · ${selectedVisible.length} selected` : ""}
+            </span>
+            <button
+              type="button"
+              onClick={downloadSelectedCsv}
+              disabled={selectedVisible.length === 0}
+              className="rounded-sm bg-paper px-4 py-2 font-form-condensed text-xs font-bold text-ink uppercase hover:opacity-90 disabled:opacity-40"
+            >
+              Save Selected (CSV)
+            </button>
+            <button
+              type="button"
+              onClick={() => setPendingBulkDelete(true)}
+              disabled={selectedVisible.length === 0}
+              className="rounded-sm border border-paper/60 px-4 py-2 font-form-condensed text-xs font-bold uppercase hover:bg-paper/10 disabled:opacity-40"
+            >
+              Delete Selected
+            </button>
+          </div>
+        )}
 
-        {entries.length === 0 ? (
+        {visible.length === 0 ? (
           <p className="mt-10 text-center font-form-condensed text-sm text-paper/70">
             {access === "locked"
               ? "Unlock above to receive customer check-ins."
-              : "No entries yet — customer check-ins will appear here automatically."}
+              : entries.length > 0
+                ? "No invoices match your search."
+                : "No entries yet — customer check-ins will appear here automatically."}
           </p>
         ) : (
           <div className="mt-4 overflow-x-auto rounded-sm border border-paper/30">
             <table className="w-full text-left font-form-mono text-[11px]">
               <thead>
                 <tr className="border-b border-paper/30 bg-paper/10">
+                  <th className="px-2 py-1.5">
+                    <label className="flex items-center gap-1 font-form-condensed font-bold uppercase">
+                      <input
+                        type="checkbox"
+                        checked={allVisibleSelected}
+                        onChange={toggleAll}
+                        className="h-4 w-4 accent-paper"
+                        aria-label="Select all invoices"
+                      />
+                      All
+                    </label>
+                  </th>
                   <th className="px-2 py-1.5 font-form-condensed font-bold uppercase">Saved</th>
                   {COLS.map(([k, label]) => (
                     <th key={k} className="px-2 py-1.5 font-form-condensed font-bold uppercase">
@@ -367,12 +421,21 @@ function RecordsPage() {
                 </tr>
               </thead>
               <tbody>
-                {entries.map((e) => (
+                {visible.map((e) => (
                   <Fragment key={e.id}>
                     <tr
                       onClick={() => setExpanded(expanded === e.id ? null : e.id)}
                       className="cursor-pointer border-b border-paper/15 hover:bg-paper/5"
                     >
+                      <td className="px-2 py-1.5" onClick={(ev) => ev.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={selected.includes(e.id)}
+                          onChange={() => toggleOne(e.id)}
+                          className="h-4 w-4 accent-paper"
+                          aria-label={`Select invoice ${e.data["invoice_id"] || e.id}`}
+                        />
+                      </td>
                       <td className="px-2 py-1.5 whitespace-nowrap">
                         {new Date(e.savedAt).toLocaleString()}
                       </td>
