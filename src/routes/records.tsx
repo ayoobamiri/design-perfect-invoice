@@ -150,12 +150,35 @@ function RecordsPage() {
   };
 
   const [pendingDelete, setPendingDelete] = useState<InvoiceEntry | null>(null);
+  const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState<string[]>([]);
+  const [pendingBulkDelete, setPendingBulkDelete] = useState(false);
+
+  const terms = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const visible = entries.filter((e) => {
+    if (terms.length === 0) return true;
+    const hay = [e.savedAt, ...Object.values(e.data)].join(" ").toLowerCase();
+    return terms.every((t) => hay.includes(t));
+  });
+  const visibleIds = visible.map((e) => e.id);
+  const selectedVisible = visibleIds.filter((id) => selected.includes(id));
+  const allVisibleSelected = visibleIds.length > 0 && selectedVisible.length === visibleIds.length;
+
+  const toggleOne = (id: string) =>
+    setSelected((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
+  const toggleAll = () =>
+    setSelected((prev) =>
+      allVisibleSelected
+        ? prev.filter((id) => !visibleIds.includes(id))
+        : Array.from(new Set([...prev, ...visibleIds])),
+    );
 
   const confirmRemove = async () => {
     if (!pendingDelete) return;
     const id = pendingDelete.id;
     setPendingDelete(null);
     setEntries((prev) => prev.filter((e) => e.id !== id));
+    setSelected((prev) => prev.filter((x) => x !== id));
     try {
       await remove({ data: { id } });
     } catch {
@@ -163,6 +186,35 @@ function RecordsPage() {
     }
     await importSubmissions();
   };
+
+  const confirmBulkRemove = async () => {
+    const ids = [...selectedVisible];
+    setPendingBulkDelete(false);
+    setEntries((prev) => prev.filter((e) => !ids.includes(e.id)));
+    setSelected((prev) => prev.filter((x) => !ids.includes(x)));
+    for (const id of ids) {
+      try {
+        await remove({ data: { id } });
+      } catch {
+        /* ignore */
+      }
+    }
+    await importSubmissions();
+  };
+
+  const downloadSelectedCsv = () => {
+    const rows = entries.filter((e) => selectedVisible.includes(e.id));
+    if (rows.length === 0) return;
+    const blob = new Blob([entriesToCsv(rows)], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${brand === "auto" ? "power-inn-automotive" : "power-inn-smog"}-selected-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+
 
 
   return (
